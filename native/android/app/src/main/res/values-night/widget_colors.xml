@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_surface">#1C1E23</color>
+    <color name="widget_border">#2E323A</color>
+    <color name="widget_ink">#ECEEF2</color>
+    <color name="widget_muted">#A3A9B4</color>
+    <color name="widget_accent">#8EA8FF</color>
+    <color name="widget_accent_fill">#4466D9</color>
+    <color name="widget_accent_soft">#263052</color>
+    <color name="widget_on_accent">#FFFFFF</color>
+    <color name="widget_track">#343A48</color>
+    <color name="widget_circle">#8A909B</color>
+    <color name="widget_danger">#F08A80</color>
+    <color name="widget_ripple">#338EA8FF</color>
+</resources>

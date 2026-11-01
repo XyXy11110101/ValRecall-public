@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture document fallback - Douyin</title>
+    <meta property="og:url" content="https://www.douyin.com/video/7420012345678901234" />
+    <meta property="og:title" content="Open Graph fixture title" />
+    <meta property="og:description" content="Open Graph fixture description" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "url": "https://www.douyin.com/video/7420012345678901234",
+        "name": "Structured fixture title",
+        "description": "Structured fixture description",
+        "author": { "@type": "Person", "name": "Structured fixture creator" }
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <article data-e2e="video-detail" data-video-id="7420012345678901234">
+        <div class="xgplayer" data-e2e="detail-video-player" data-video-id="7420012345678901234">
+          <video id="active-video"></video>
+          <div data-e2e="video-subtitle">Visible fixture caption</div>
+          <div class="xgplayer-controls">
+            <div data-e2e="video-subtitle">Captions settings fixture text</div>
+          </div>
+          <div data-e2e="video-chapter">Fixture chapter</div>
+        </div>
+        <h1 data-e2e="video-desc">Visible associated fixture lesson</h1>
+        <a data-e2e="video-author" href="/user/fixture">Fixture creator</a>
+        <div data-e2e="video-transcript">
+          <div data-e2e="video-transcript-item">
+            <span data-e2e="transcript-time">00:00</span>
+            <span data-e2e="transcript-text">Transcript before</span>
+          </div>
+          <div data-e2e="video-transcript-item">
+            <span data-e2e="transcript-time">00:30</span>
+            <span data-e2e="transcript-text">Transcript current</span>
+          </div>
+          <div data-e2e="video-transcript-item">
+            <span data-e2e="transcript-time">01:00</span>
+            <span data-e2e="transcript-text">Transcript after</span>
+          </div>
+        </div>
+        <section data-e2e="comment-list">
+          <div data-e2e="video-subtitle">Comment text must never become a subtitle</div>
+        </section>
+      </article>
+      <aside data-e2e="recommend-list">
+        <video id="neighbour-video" data-preview-video="true"></video>
+        <div data-e2e="video-subtitle">Recommendation text must be ignored</div>
+      </aside>
+      <video id="hidden-video" aria-hidden="true"></video>
+    </main>
+  </body>
+</html>

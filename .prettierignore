@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+package-lock.json
+native/**/bin
+native/**/obj
+native/**/.gradle
+native/**/build

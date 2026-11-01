@@ -1,0 +1,1161 @@
+:root {
+  --font-ui:
+    'MiSans', 'ValRecall Reading', system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei',
+    sans-serif;
+  font-family: var(--font-ui);
+  color: var(--mobile-text);
+  background: var(--mobile-canvas);
+  color-scheme: light;
+  font-size: 16px;
+  line-height: 1.6;
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+  --mobile-text: #24262b;
+  --mobile-muted: #626770;
+  --mobile-line: #dee1e5;
+  --mobile-ink: #345fdb;
+  --mobile-ink-pressed: #284cc1;
+  --mobile-accent-soft: #eef2ff;
+  --mobile-canvas: #f5f5f3;
+  --mobile-success: #2e6a4c;
+  --mobile-danger: #a23c35;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+body {
+  margin: 0;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+p,
+li,
+summary,
+h1,
+h2,
+h3,
+dd {
+  overflow-wrap: anywhere;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 24px;
+  padding: 10px 18px;
+  color: #fff;
+  background: var(--mobile-ink);
+  font-weight: 500;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition:
+    background-color 120ms,
+    color 120ms,
+    transform 100ms ease,
+    box-shadow 120ms ease;
+}
+button.secondary {
+  color: var(--mobile-ink);
+  background: var(--mobile-accent-soft);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button:not(:disabled):active {
+  filter: brightness(0.94);
+  transform: translateY(1px);
+}
+.mobile-add-button,
+.mobile-save-button {
+  min-height: 48px;
+  border-radius: 14px;
+  box-shadow: 0 3px 0 var(--mobile-ink-pressed);
+}
+.mobile-add-button:not(:disabled):active,
+.mobile-save-button:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--mobile-ink-pressed);
+}
+:focus-visible {
+  outline: 3px solid var(--mobile-ink);
+  outline-offset: 3px;
+}
+.mobile-shell {
+  max-width: 680px;
+  margin: auto;
+  padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+    calc(112px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+}
+.mobile-shell.has-subpage {
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+}
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0;
+}
+.mobile-header > div {
+  min-width: 0;
+}
+.mobile-header .mobile-muted {
+  margin-top: 4px;
+}
+/* Private builds only: the companion head sits before the title block, which keeps the
+   free space so the add button stays at the end. */
+.mobile-companion-head {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.mobile-companion-head ~ div {
+  flex: 1 1 auto;
+}
+.mobile-muted,
+.mobile-task-meta {
+  color: var(--mobile-muted);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.mobile-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding-inline: 14px;
+  font-size: 16px;
+}
+.mobile-text-button {
+  border: 0;
+  background: transparent;
+  color: var(--mobile-ink);
+  padding: 10px 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.mobile-sync-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 4px 0 16px;
+}
+.mobile-sync-detail {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: var(--mobile-muted);
+  padding-bottom: 4px;
+}
+.mobile-page {
+  display: grid;
+  gap: 24px;
+}
+.mobile-module {
+  min-width: 0;
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px 16px;
+}
+.mobile-module-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+/* Overdue tasks sit after today's, under one quiet label, never on top of the page. */
+.mobile-overdue {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--mobile-line);
+}
+.mobile-group-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 4px;
+  color: var(--mobile-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+.mobile-count {
+  color: var(--mobile-muted);
+  font-size: 14px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.mobile-task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mobile-task {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 40px;
+  column-gap: 4px;
+  align-items: start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--mobile-line);
+  scroll-margin-block: 80px 120px;
+}
+.mobile-task:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+.mobile-task-copy {
+  display: contents;
+}
+.mobile-complete {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-left: -6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--mobile-ink);
+}
+.mobile-checkbox {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid #868b95;
+  border-radius: 50%;
+}
+.mobile-task-symbol {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  color: var(--mobile-muted);
+  font-size: 20px;
+}
+.mobile-task.is-confirmed .mobile-task-symbol {
+  color: var(--mobile-success);
+}
+.mobile-task.is-done h3 {
+  color: var(--mobile-muted);
+}
+.mobile-notes {
+  grid-column: 2 / -1;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+  text-align: left;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  padding: 4px 0 0;
+  color: var(--mobile-muted);
+  background: transparent;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.mobile-notes.is-expanded {
+  display: block;
+}
+.mobile-task-meta {
+  grid-column: 2 / -1;
+  margin-top: 6px;
+}
+.mobile-task-more {
+  grid-column: 3;
+  grid-row: 1;
+  position: relative;
+}
+.mobile-task-more > summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-left: -4px;
+  padding: 0;
+  color: var(--mobile-muted);
+  border-radius: 50%;
+  list-style: none;
+}
+.mobile-task-more > summary::-webkit-details-marker {
+  display: none;
+}
+.mobile-task-more[open] > summary {
+  background: var(--mobile-accent-soft);
+  color: var(--mobile-ink);
+}
+.mobile-task-menu {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  top: 44px;
+  width: max-content;
+  max-width: 210px;
+  padding: 4px;
+  border: 1px solid #cbd0d3;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 12px #1d1d1f14;
+}
+.mobile-task-menu button {
+  border: 0;
+  background: transparent;
+  color: var(--mobile-ink);
+  width: 100%;
+}
+.mobile-task-groups {
+  padding-block: 4px;
+}
+.mobile-task-groups > details + details {
+  border-top: 1px solid var(--mobile-line);
+}
+.mobile-task-groups > details > summary {
+  font-size: 17px;
+  font-weight: 500;
+  padding: 16px 0;
+}
+.mobile-task-groups .mobile-count {
+  margin-left: auto;
+  padding-left: 8px;
+}
+.mobile-task-groups summary::after {
+  margin-left: 4px;
+}
+.mobile-empty {
+  padding: 24px 0;
+  color: var(--mobile-muted);
+}
+.mobile-empty > p + p {
+  margin-top: 6px;
+}
+details {
+  min-width: 0;
+}
+summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  list-style: none;
+}
+.mobile-form {
+  display: grid;
+  gap: 20px;
+}
+.mobile-form fieldset {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.mobile-form legend {
+  padding: 0 0 12px;
+  font-weight: 500;
+}
+label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+input:not([type='checkbox']),
+select,
+textarea {
+  min-width: 0;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #868b95;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--mobile-text);
+  background: #fff;
+  font-size: 16px;
+}
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--mobile-muted);
+  opacity: 1;
+}
+.mobile-progress-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0 12px;
+}
+.mobile-progress-totals dt {
+  font-size: 14px;
+  color: var(--mobile-muted);
+}
+.mobile-progress-totals dd {
+  margin: 2px 0 0;
+  font-size: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.mobile-progress-totals dd span {
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--mobile-muted);
+}
+.mobile-progress-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 16px;
+  gap: 2px;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mobile-muted);
+}
+.mobile-progress-chart li {
+  min-width: 0;
+}
+.mobile-progress-range {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.mobile-progress-chart li > span:last-child {
+  white-space: nowrap;
+}
+.mobile-progress-number {
+  color: var(--mobile-text);
+}
+.mobile-progress-track {
+  height: 64px;
+  margin: 6px auto;
+  max-width: 24px;
+  display: flex;
+  align-items: end;
+  border-bottom: 2px solid var(--mobile-line);
+}
+.mobile-progress-track > span {
+  display: block;
+  width: 100%;
+  background: #c9d9ef;
+  border-radius: 5px 5px 1px 1px;
+}
+.mobile-progress-chart .is-today {
+  color: var(--mobile-ink);
+  font-weight: 500;
+}
+.is-today .mobile-progress-track > span {
+  background: var(--mobile-ink);
+}
+.mobile-history > details {
+  border-top: 1px solid var(--mobile-line);
+}
+.mobile-history > p {
+  margin-bottom: 16px;
+}
+.mobile-history > details > summary {
+  padding: 16px 0;
+}
+.mobile-history summary > span {
+  min-width: 0;
+}
+.mobile-history summary strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 500;
+}
+.mobile-history summary .mobile-muted {
+  display: block;
+  margin-top: 4px;
+}
+.mobile-history .mobile-task h3 {
+  font-size: 16px;
+}
+.mobile-sync-action {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.mobile-advanced {
+  border-top: 1px solid var(--mobile-line);
+  border-bottom: 1px solid var(--mobile-line);
+}
+.mobile-advanced[open] {
+  padding-bottom: 16px;
+}
+.mobile-form .mobile-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.mobile-weekdays label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px;
+}
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--mobile-ink);
+}
+.mobile-subpage-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin: -24px -8px 24px;
+  padding: 12px 0;
+  background: var(--mobile-canvas);
+}
+.mobile-subpage-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  font-size: 14px;
+}
+.mobile-discard {
+  justify-self: center;
+  color: var(--mobile-muted);
+}
+.mobile-feedback:empty {
+  display: none;
+}
+.mobile-status {
+  color: var(--mobile-muted);
+  font-size: 14px;
+}
+.mobile-error {
+  padding: 12px;
+  border: 1px solid #dfc2bc;
+  border-radius: 10px;
+  background: #fbe6e2;
+  color: var(--mobile-danger);
+  font-size: 14px;
+}
+.mobile-shell > .mobile-error {
+  margin-bottom: 24px;
+}
+.mobile-error button {
+  margin-top: 8px;
+}
+.mobile-attention {
+  font-size: 14px;
+  color: var(--mobile-danger);
+  margin-top: 16px;
+}
+.mobile-balance-label {
+  color: var(--mobile-muted);
+  font-size: 16px;
+  font-weight: 500;
+}
+.mobile-balance-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 12px 0 20px;
+}
+.mobile-balance {
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.mobile-balance-line span {
+  font-size: 16px;
+  color: var(--mobile-muted);
+}
+.mobile-wallet > button {
+  width: 100%;
+}
+.mobile-wallet {
+  padding: 24px;
+}
+.mobile-pending-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mobile-muted);
+  font-size: 16px;
+  padding: 20px 0 12px;
+}
+.mobile-pending-empty svg {
+  color: var(--mobile-success);
+  flex-shrink: 0;
+}
+.mobile-balance-explanation summary {
+  color: var(--mobile-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+.mobile-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 0 0;
+  margin-top: 8px;
+  border-top: 1px solid var(--mobile-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--mobile-ink);
+  text-align: left;
+}
+.mobile-settings-row svg:last-child {
+  margin-left: auto;
+  width: 18px;
+}
+.mobile-setting-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.mobile-setting-heading h2 {
+  font-size: 20px;
+}
+.mobile-setting-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  color: var(--mobile-ink);
+  background: var(--mobile-accent-soft);
+}
+.mobile-setting-icon.neutral {
+  color: var(--mobile-muted);
+  background: var(--mobile-canvas);
+}
+.mobile-settings > details + details,
+.mobile-help > details + details {
+  border-top: 1px solid var(--mobile-line);
+}
+.mobile-pairing > .mobile-toolbar {
+  margin-block: 12px;
+}
+.mobile-connection-details p,
+.mobile-balance-explanation p {
+  padding-bottom: 12px;
+}
+.mobile-help > .mobile-setting-heading {
+  margin-bottom: 12px;
+}
+.mobile-help p:last-child {
+  padding-bottom: 16px;
+}
+.mobile-spend-form input[name='amount'] {
+  border: 0;
+  padding: 4px 0;
+  min-height: 80px;
+  font-size: 52px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+}
+.mobile-spend-form input[name='amount']::-webkit-inner-spin-button,
+.mobile-spend-form input[name='amount']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.mobile-spend-form label:first-child {
+  color: var(--mobile-muted);
+  font-size: 14px;
+}
+.mobile-wallet > .mobile-muted {
+  margin-top: 12px;
+}
+.mobile-amount-list {
+  margin: 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+.mobile-amount-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--mobile-line);
+}
+.mobile-amount-list dt {
+  color: var(--mobile-muted);
+  font-size: 16px;
+}
+.mobile-amount-list dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: right;
+}
+.mobile-amount-list dd span {
+  font-size: 14px;
+  font-weight: 400;
+}
+.mobile-settings {
+  display: grid;
+  gap: 16px;
+}
+.mobile-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mobile-help p {
+  margin-top: 12px;
+}
+.mobile-operation {
+  border-top: 1px solid var(--mobile-line);
+  padding-block: 4px;
+}
+.mobile-operation summary {
+  display: block;
+  position: relative;
+  padding-right: 20px;
+  font-size: 16px;
+}
+.mobile-operation-status {
+  color: var(--mobile-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+.mobile-operation-title {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+.mobile-operation p,
+.mobile-recovery p,
+.mobile-recovery li {
+  margin-block: 8px;
+}
+.mobile-operation .mobile-muted {
+  font-size: 14px;
+}
+.mobile-operation button {
+  margin-block: 8px;
+}
+.mobile-bottom-nav {
+  position: fixed;
+  z-index: 5;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 5px;
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 2px 18px #1d1d1f12;
+  border: 1px solid #fff;
+}
+.mobile-bottom-nav button {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 1px;
+  min-height: 56px;
+  border: 0;
+  padding: 5px;
+  background: transparent;
+  color: var(--mobile-muted);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 27px;
+}
+.mobile-bottom-nav button[aria-current='page'] {
+  color: var(--mobile-ink);
+}
+
+.mobile-sync-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mobile-muted);
+  background: transparent;
+  padding: 4px 0;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+}
+.mobile-sync-link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.mobile-sync-link svg:last-child {
+  width: 12px;
+}
+.mobile-task h3 {
+  grid-column: 2;
+  grid-row: 1;
+  padding: 8px 0 2px;
+}
+.mobile-task-more > summary::after {
+  display: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  margin-right: 4px;
+  flex-shrink: 0;
+  border-right: 1.5px solid var(--mobile-muted);
+  border-top: 1.5px solid var(--mobile-muted);
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+details[open] > summary::after {
+  transform: rotate(135deg);
+}
+.mobile-operation summary::after {
+  position: absolute;
+  right: 0;
+  top: 24px;
+}
+.mobile-today .mobile-count {
+  background: var(--mobile-canvas);
+  min-width: 28px;
+  border-radius: 14px;
+  text-align: center;
+  padding-inline: 6px;
+}
+#mobile-add-form {
+  background: transparent;
+  padding: 0;
+  gap: 24px;
+}
+#mobile-add-form > fieldset,
+#mobile-add-form > details,
+#mobile-add-form .mobile-add-title {
+  border: 0;
+  border-radius: 20px;
+  padding: 16px;
+  background: #fff;
+}
+#mobile-add-form input[name='title'] {
+  border: 0;
+  padding: 4px 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+.mobile-add-entry {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+.mobile-add-draft {
+  min-height: 1.5rem;
+  padding-inline: 4px;
+}
+.mobile-add-draft .draft-recovery {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.mobile-add-draft .draft-recovery p {
+  margin: 0;
+}
+.mobile-add-reward {
+  margin: 0;
+  padding-inline: 4px;
+}
+.mobile-form .mobile-add-options {
+  gap: 0;
+}
+.mobile-add-options > label {
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding-block: 6px;
+}
+.mobile-add-options > label + label {
+  border-top: 1px solid var(--mobile-line);
+}
+.mobile-add-options input,
+.mobile-add-options select {
+  border: 0;
+  text-align: right;
+  color: var(--mobile-ink);
+  padding-inline: 4px;
+}
+.mobile-subpage-bar h1 {
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+.mobile-subpage-bar .mobile-save-button {
+  padding-inline: 14px;
+  font-size: 16px;
+}
+.mobile-feedback .mobile-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 16px;
+}
+.mobile-feedback .mobile-status::before {
+  content: '✓';
+  color: var(--mobile-ink);
+  font-size: 18px;
+}
+.mobile-bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  bottom: 5px;
+  width: calc((100% - 10px) / 2);
+  background: var(--mobile-accent-soft);
+  border-radius: 27px;
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mobile-bottom-nav[data-tab='wallet']::before {
+  transform: translateX(100%);
+}
+.mobile-bottom-nav[data-tab='settings']::before {
+  transform: translateX(100%);
+}
+.mobile-completion-ghost {
+  position: fixed;
+  z-index: 4;
+  pointer-events: none;
+  margin: 0;
+  background: #fff;
+  list-style: none;
+}
+.mobile-completion-ghost .mobile-checkbox {
+  background: var(--mobile-ink);
+  color: #fff;
+  border-color: var(--mobile-ink);
+}
+/* Decorative coins live outside the flow; the hollow one is only an estimate. */
+.mobile-completion-coin {
+  position: fixed;
+  z-index: 7;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.mobile-completion-coin.is-pending {
+  color: #6b4800;
+  background: #fff8e6;
+  border: 2px dashed #c78a0e;
+}
+.mobile-completion-coin.is-confirmed {
+  color: #4d3200;
+  background: #f3b52f;
+  border: 2px solid #c78a0e;
+}
+/* One floating line above the tabs, so a completion never pushes the list down. */
+.mobile-celebration-status {
+  position: fixed;
+  z-index: 6;
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + 84px);
+  left: 50%;
+  display: flex;
+  max-width: calc(100% - 48px);
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 16px;
+  color: var(--mobile-text);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 6px 22px #1d1d1f1f;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.mobile-celebration-status::before {
+  color: var(--mobile-success);
+  content: '✓';
+}
+.mobile-celebration-status[hidden] {
+  display: none;
+}
+/* The cheer figure stands just above the floating line, in the middle of the screen: clear of
+   the line, the tabs and the controls at either edge of a row, and it never takes a tap. It
+   rises in gently and leaves at once, like the line. */
+.mobile-companion-cheer {
+  position: fixed;
+  z-index: 6;
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + 134px);
+  left: 50%;
+  width: 64px;
+  height: 88px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 12px) scale(0.92);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+.mobile-companion-cheer.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0) scale(1);
+  transition:
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mobile-companion-cheer-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+/* Spoken but not shown (the phone does not load the desktop .sr-only): the outcome of a
+   sync the person asked for, already visible in the sync summary. */
+.mobile-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.mobile-background-sync {
+  margin: 8px 0 0;
+}
+@supports (backdrop-filter: blur(12px)) {
+  .mobile-bottom-nav {
+    background: rgb(255 255 255 / 94%);
+    backdrop-filter: blur(12px);
+  }
+  .mobile-subpage-bar {
+    background: rgb(245 245 243 / 96%);
+    backdrop-filter: blur(12px);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .mobile-bottom-nav {
+    background: #fff;
+    backdrop-filter: none;
+  }
+  .mobile-subpage-bar {
+    background: var(--mobile-canvas);
+    backdrop-filter: none;
+  }
+}
+@media (forced-colors: active) {
+  button,
+  .mobile-module,
+  .mobile-bottom-nav {
+    border: 1px solid ButtonText;
+  }
+  .mobile-bottom-nav button[aria-current='page'] {
+    outline: 2px solid Highlight;
+  }
+  .mobile-bottom-nav::before {
+    display: none;
+  }
+}
+@media (max-width: 390px) {
+  .mobile-shell {
+    padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+  .mobile-add-button {
+    padding-inline: 10px;
+  }
+  .mobile-header {
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active {
+    transform: none;
+  }
+  .mobile-add-button:not(:disabled):active,
+  .mobile-save-button:not(:disabled):active {
+    transform: none;
+    box-shadow: 0 3px 0 var(--mobile-ink-pressed);
+  }
+  .mobile-companion-cheer,
+  .mobile-companion-cheer.is-visible {
+    transform: translate(-50%, 0);
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

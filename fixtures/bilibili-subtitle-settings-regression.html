@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ValRecall subtitle settings rejection fixture</title>
+  </head>
+  <body>
+    <main class="bpx-player-container">
+      <video id="active-video" width="1280" height="720"></video>
+
+      <div id="real-subtitle" class="bpx-player-subtitle-panel-text" aria-live="polite">
+        Hold the angle until the utility lands.
+        <span aria-hidden="true">字幕大小 字幕颜色 恢复默认设置</span>
+        <span class="sr-only">Hidden accessibility duplicate</span>
+        <button type="button">字幕设置</button>
+      </div>
+
+      <section
+        class="bpx-player-ctrl-setting subtitle-setting-menu"
+        role="dialog"
+        aria-label="字幕设置"
+      >
+        <div id="settings-candidate" class="bpx-player-subtitle-panel-text">
+          字幕 关闭 登录可享 原声翻译体验反馈 字幕 添加字幕 关闭 关闭 登录可享 字幕 暂无字幕 主字幕
+          中文 副字幕 字幕 字幕设置
+          B站自研的AI原声翻译功能通过大模型翻译、音色克隆、中文字幕改写、口型匹配等AI能力，将中文原生视频转化为外语原生视频
+          将中文内容翻译为外语 保留原视频内说话人的音色、语调和话语节奏
+          在可能的情况下，会同步将原视频内的中文字幕擦除并匹配对应外语字幕、将讲中文的嘴型匹配为外语嘴型
+          字幕大小 适中 最小 较小 适中 较大 最大 字幕颜色 白色 白色 红色 紫色 深紫色 靛青色 蓝色
+          亮蓝色 描边方式 无描边 无描边 重墨 描边 45°投影 默认位置 底部居中 左下角 底部居中 右下角
+          左上角 顶部居中 右上角 背景不透明度 其它设置 等比缩放 淡入淡出 恢复默认设置
+        </div>
+        <button type="button">字幕大小</button>
+        <button type="button">字幕颜色</button>
+        <button type="button">恢复默认设置</button>
+      </section>
+
+      <div id="hidden-duplicate" class="bpx-player-subtitle-panel-text" aria-hidden="true">
+        Hidden duplicate 字幕大小 字幕颜色 恢复默认设置
+      </div>
+    </main>
+  </body>
+</html>

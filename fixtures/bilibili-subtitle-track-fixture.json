@@ -1,0 +1,54 @@
+{
+  "description": "Sanitised Bilibili MAIN-world subtitle shape modelled on the single metadata-only track observed during an Edge capture. Account data and resource identifiers are synthetic.",
+  "href": "https://www.bilibili.com/video/BV1FixtureTrack?p=1",
+  "initialState": {
+    "bvid": "BV1FixtureTrack",
+    "aid": 123456789,
+    "videoData": {
+      "bvid": "BV1FixtureTrack",
+      "aid": 123456789,
+      "cid": 987654321,
+      "pages": [
+        {
+          "page": 1,
+          "cid": 987654321
+        }
+      ],
+      "subtitle": {
+        "list": [
+          {
+            "id": "sanitised-ai-zh",
+            "lan": "zh-CN",
+            "lan_doc": "Chinese (AI-generated)",
+            "ai_status": 1,
+            "subtitle_url": "//aisubtitle.hdslb.com/bfs/ai_subtitle/prod/valrecall-sanitised-fixture.json"
+          }
+        ]
+      }
+    }
+  },
+  "resourcePayload": {
+    "body": [
+      {
+        "from": 118,
+        "to": 120,
+        "content": "Sanitised cue before"
+      },
+      {
+        "from": 122.5,
+        "to": 124,
+        "content": "Sanitised cue at 02:03"
+      },
+      {
+        "from": 125,
+        "to": 127,
+        "content": "Sanitised cue after"
+      },
+      {
+        "from": 900,
+        "to": 902,
+        "content": "Distant cue excluded from the bridge response"
+      }
+    ]
+  }
+}

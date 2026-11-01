@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta property="og:title" content="Metadata fallback title" />
+    <meta name="description" content="Metadata fallback description" />
+    <title>Document fallback title - YouTube</title>
+  </head>
+  <body>
+    <ytd-watch-flexy>
+      <ytd-watch-metadata>
+        <h1><yt-formatted-string id="watch-title">Reliable watch title</yt-formatted-string></h1>
+        <ytd-video-owner-renderer>
+          <div id="channel-name"><a href="/channel/test">Test channel</a></div>
+        </ytd-video-owner-renderer>
+        <ytd-text-inline-expander id="description-inline-expander"
+          >00:00 Opening 00:30 Demonstration 01:00 Summary</ytd-text-inline-expander
+        >
+      </ytd-watch-metadata>
+
+      <div id="movie_player">
+        <video class="html5-main-video"></video>
+        <div class="ytp-chapter-title-content">Demonstration</div>
+        <div class="caption-window">
+          <span class="ytp-caption-segment">Visible player caption</span>
+        </div>
+        <div class="ytp-settings-menu" role="menu">
+          <span class="ytp-caption-segment">Captions settings off color size</span>
+        </div>
+      </div>
+
+      <ytd-transcript-segment-list-renderer>
+        <ytd-transcript-segment-renderer>
+          <span class="segment-timestamp">0:00</span>
+          <yt-formatted-string class="segment-text">Before transcript line</yt-formatted-string>
+        </ytd-transcript-segment-renderer>
+        <ytd-transcript-segment-renderer>
+          <span class="segment-timestamp">0:05</span>
+          <yt-formatted-string class="segment-text">Current transcript line</yt-formatted-string>
+        </ytd-transcript-segment-renderer>
+        <ytd-transcript-segment-renderer>
+          <span class="segment-timestamp">0:10</span>
+          <yt-formatted-string class="segment-text">After transcript line</yt-formatted-string>
+        </ytd-transcript-segment-renderer>
+      </ytd-transcript-segment-list-renderer>
+
+      <ytd-comments>
+        <ytd-comment-thread-renderer>
+          <div class="comment-content">Comment text that must never become a subtitle.</div>
+        </ytd-comment-thread-renderer>
+      </ytd-comments>
+      <ytd-watch-next-secondary-results-renderer>
+        <div>Recommended video text that must never become a subtitle.</div>
+      </ytd-watch-next-secondary-results-renderer>
+    </ytd-watch-flexy>
+  </body>
+</html>

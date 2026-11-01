@@ -1,0 +1,1074 @@
+html:has(.review-view) {
+  scrollbar-gutter: stable;
+}
+
+/* Review shares the application's reading palette, and the chosen font and text size. */
+.review-view {
+  position: relative;
+  min-width: 0;
+  container: review-canvas / inline-size;
+  --ink: #24262b;
+  --muted: #656971;
+  --paper: #ffffff;
+  --canvas: #f5f5f3;
+  --line: #e0e2e6;
+  --line-strong: #b9bdc5;
+  --accent: #345fdb;
+  --accent-hover: #284cc1;
+  --accent-soft: #eef2ff;
+  --teal: var(--accent);
+  --teal-soft: var(--accent-soft);
+  --teal-dark: var(--ink);
+  --success: #35654d;
+  --reward: #2f855a;
+  --motion-standard: 180ms;
+  --review-lane-gap: clamp(32px, 4cqw, 72px);
+  font-family: var(--font-ui);
+  color: var(--ink);
+  font-size: var(--text-body);
+  line-height: 1.65;
+  background: var(--canvas);
+  padding: clamp(16px, 2.5vw, 40px);
+  border-radius: 12px;
+  gap: 24px;
+}
+
+/* Under the 现在到期 tabs: one left edge for the tabs and everything below them. */
+.review-section-content > .review-view {
+  padding-block-start: 0;
+  padding-inline: 0;
+}
+
+.review-view :is(h2, h3, strong, .button) {
+  font-weight: 500;
+  -webkit-text-stroke: 0;
+}
+.review-view .small,
+.review-view .eyebrow {
+  font-size: var(--text-small);
+}
+.review-view .button {
+  min-height: 44px;
+  transform: none;
+}
+.review-view .motion-press {
+  transform: none;
+}
+.review-view .button.primary-action {
+  min-height: 56px;
+  font-weight: 600;
+}
+.review-view .button.primary-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.review-view .button.primary-action:active:not(:disabled) {
+  transform: translateY(3px);
+}
+.review-earned-total {
+  color: var(--success);
+  font-weight: 600;
+}
+.review-view .pill {
+  padding: 1px 10px;
+  color: var(--muted);
+  font-size: calc(13px * var(--font-scale));
+  font-weight: 500;
+  background: #eceef1;
+  border: 0;
+  border-radius: 999px;
+}
+.review-view .notice {
+  font-size: var(--text-small);
+}
+.review-view .notice.success {
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--success);
+}
+
+.review-stage,
+.review-card {
+  min-width: 0;
+  width: 100%;
+}
+.review-card {
+  gap: 20px;
+}
+.review-session-progress {
+  display: grid;
+  gap: 10px;
+}
+.review-session-progress > .split {
+  align-items: center;
+}
+.review-session-progress .review-active-scope {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin: 0;
+}
+/* Stays on the right when the visually hidden heading leaves it alone in the row. */
+.review-session-tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  margin-inline-start: auto;
+}
+.review-session-count {
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+.review-view .review-session-count strong {
+  color: var(--ink);
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+/* The running tally only reflects committed receipts; each new receipt bumps it. */
+.review-session-earned {
+  padding: 1px 10px;
+  color: var(--success);
+  font-size: var(--text-small);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: #e6f2ea;
+  border-radius: 999px;
+  animation: review-tally-bump 560ms 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes review-tally-bump {
+  0% {
+    transform: none;
+  }
+  40% {
+    transform: scale(1.16);
+    background: #cfe8d8;
+  }
+  100% {
+    transform: none;
+  }
+}
+.review-session-progress progress {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #e6e8ec;
+}
+.review-session-progress progress::-webkit-progress-bar {
+  background: #e6e8ec;
+  border-radius: 999px;
+}
+.review-session-progress progress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.review-session-progress progress::-moz-progress-bar {
+  background: var(--accent);
+  border-radius: 999px;
+}
+.review-item-meta {
+  min-height: 44px;
+  align-items: center;
+}
+.review-item-meta .cluster {
+  gap: 8px;
+}
+.review-mastered-action {
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+
+.review-cue-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.review-reading-column {
+  min-width: 0;
+  display: grid;
+  gap: 28px;
+  align-content: start;
+}
+.review-prompt-block {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.review-prompt-block p {
+  margin-bottom: 12px;
+}
+.review-view .recall-prompt {
+  margin: 0;
+  max-width: 32em;
+  font-size: calc(24px * var(--font-scale));
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.review-view .recall-prompt:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 6px;
+}
+.review-answer-reveal {
+  min-width: 0;
+  gap: 24px;
+}
+/* Programmatic focus after a click stays invisible; keyboard focus gets a soft ring. */
+.review-answer-reveal:focus {
+  outline: none;
+}
+.review-answer-reveal:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+.review-view .answer-box {
+  padding: 20px 24px;
+  border: 0;
+  border-radius: 14px;
+  background: #f5f7fa;
+  box-shadow: none;
+}
+.review-view .review-key-takeaway {
+  display: block;
+  font-size: var(--text-title);
+  font-weight: 400;
+  line-height: 1.75;
+  max-width: 36em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.review-answer-reveal :is(dd, strong) {
+  overflow-wrap: anywhere;
+}
+.review-view .review-subtitle-context {
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--text-body);
+}
+.review-subtitle-context .subtitle-current {
+  color: var(--muted);
+  font-weight: 400;
+}
+.review-subtitle-context .source-context-lines {
+  padding-inline: 16px;
+  border-left: 2px solid var(--line);
+}
+.review-view :is(.source-context-disclosure, .reading-source-details) {
+  background: transparent;
+  border-color: var(--line);
+  font-size: var(--text-body);
+}
+.review-view :is(.source-context-disclosure, .reading-source-details) > summary {
+  color: var(--muted);
+}
+
+.review-captured-frame {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.review-video-cue-viewport {
+  width: 100%;
+  max-width: 880px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: none;
+}
+.review-view .review-video-cue-image,
+.review-view .image-moment-cue {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(42vh, 440px);
+  object-fit: contain;
+  object-position: left center;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: none;
+  transform: none;
+}
+.review-view div.screenshot {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 150px;
+  padding: 24px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: var(--text-small);
+  text-align: center;
+}
+.review-captured-frame figcaption {
+  font-size: var(--text-small);
+}
+
+.review-control-deck {
+  min-width: 0;
+  padding-block: 24px 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 16px;
+}
+.review-reveal-panel {
+  display: flex;
+}
+.review-reveal-action {
+  min-width: 220px;
+}
+.review-view .rating-shortcut {
+  display: inline-grid;
+  min-width: 24px;
+  min-height: 22px;
+  place-items: center;
+  padding: 0 6px;
+  font: inherit;
+  color: var(--muted);
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 600;
+  line-height: 1;
+  background: #f2f3f5;
+  border: 1px solid #dcdfe4;
+  border-bottom-width: 2px;
+  border-radius: 6px;
+}
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+/* Every grade earns the same receipt; tone only helps the eye find the right answer. */
+.review-view .rating-grid .button {
+  --rating-tone: var(--accent);
+  --rating-soft: var(--accent-soft);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  justify-items: start;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+  min-height: 112px;
+  padding: 26px 16px 14px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  text-align: left;
+  transition:
+    transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+  box-shadow: 0 3px 0 var(--line);
+}
+.review-view .rating-grid .button::before {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  width: 18px;
+  height: 4px;
+  content: '';
+  background: var(--rating-tone);
+  border-radius: 999px;
+}
+.review-view .rating-grid .button[data-rating='again'] {
+  --rating-tone: #b5473b;
+  --rating-soft: #fbeeec;
+}
+.review-view .rating-grid .button[data-rating='hard'] {
+  --rating-tone: #a86a12;
+  --rating-soft: #fbf3e4;
+}
+.review-view .rating-grid .button[data-rating='easy'] {
+  --rating-tone: #2f7a55;
+  --rating-soft: #e9f5ee;
+}
+.review-view .rating-grid .button > span:first-child {
+  font-size: calc(18px * var(--font-scale));
+  font-weight: 600;
+  line-height: 1.4;
+}
+.review-view .rating-grid .button:hover:not(:disabled) {
+  background: var(--rating-soft);
+  border-color: var(--rating-tone);
+  box-shadow: 0 4px 0 var(--line-strong);
+  transform: translateY(-1px);
+}
+.review-view .rating-grid .button:active:not(:disabled),
+.review-view .rating-grid .button.is-selected {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rating-tone);
+}
+.review-view .rating-grid .button[aria-busy='true']::after {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+}
+.review-view .rating-grid .button[aria-busy='true'] .rating-shortcut {
+  visibility: hidden;
+}
+
+/* A committed step celebrates independently of the next card and its focus. */
+.review-step-feedback-region {
+  position: fixed;
+  z-index: 40;
+  inset-block-start: 24px;
+  inset-inline-end: 24px;
+  pointer-events: none;
+}
+.review-step-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 14px;
+  width: max-content;
+  max-width: calc(100vw - 48px);
+  padding: 12px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow:
+    0 18px 40px -22px rgb(24 28 36 / 38%),
+    0 2px 6px rgb(24 28 36 / 6%);
+  animation: review-step-arrive 1400ms both;
+}
+.review-step-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--paper);
+  background: var(--reward);
+  border-radius: 50%;
+  animation: review-step-stamp 440ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.review-step-seal svg {
+  width: 30px;
+  height: 30px;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.review-step-seal path {
+  stroke-dasharray: 24;
+  animation: review-step-check 240ms 140ms ease-out both;
+}
+.review-step-ring {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--reward);
+  border-radius: 50%;
+  opacity: 0;
+  animation: review-step-ring 520ms 120ms ease-out both;
+}
+.review-step-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  margin: -4px 0 0 -2px;
+  border-radius: 3px;
+  background: var(--reward);
+  opacity: 0;
+  animation: review-step-spark 520ms 140ms ease-out both;
+}
+.review-step-spark:nth-of-type(even) {
+  height: 5px;
+  margin-top: -2.5px;
+  background: var(--accent);
+  animation-delay: 190ms;
+}
+.review-step-earned {
+  display: grid;
+  grid-template-areas:
+    'amount'
+    'source';
+  justify-items: start;
+  padding-inline-end: 8px;
+  color: var(--success);
+  font-size: calc(13px * var(--font-scale));
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: pre;
+}
+.review-step-earned-source {
+  grid-area: source;
+}
+.review-view .review-step-amount {
+  grid-area: amount;
+  font-size: calc(26px * var(--font-scale));
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-variant-numeric: lining-nums tabular-nums;
+  animation: review-step-amount 560ms 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes review-step-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0) scale(1.01);
+  }
+  20%,
+  82% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes review-step-stamp {
+  0% {
+    transform: scale(0.4) rotate(-14deg);
+  }
+  55% {
+    transform: scale(1.12) rotate(3deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes review-step-check {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes review-step-ring {
+  from {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+@keyframes review-step-spark {
+  from {
+    opacity: 1;
+    transform: rotate(var(--spark-angle)) translateY(-27px) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateY(-44px) scale(0.2);
+  }
+}
+@keyframes review-step-amount {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.06);
+  }
+  100% {
+    transform: none;
+  }
+}
+.rating-description,
+.rating-interval {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--muted);
+}
+.review-view .rating-interval {
+  margin-top: 8px;
+  padding: 0 8px;
+  color: var(--ink);
+  font-size: calc(13px * var(--font-scale));
+  font-weight: 600;
+  line-height: calc(22 / 13);
+  font-variant-numeric: tabular-nums;
+  background: #f1f2f4;
+  border-radius: 999px;
+}
+.rating-shortcut {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.review-view .rating-grid .button.is-selected {
+  background: var(--rating-soft);
+  border: 2px solid var(--rating-tone);
+  padding: 25px 15px 13px;
+  opacity: 1;
+}
+.review-save-status {
+  min-height: 24px;
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+.review-session-recovery {
+  justify-items: start;
+}
+
+/* Portrait and speech always occupy different grid cells. No overlays on faces. */
+.review-cue-companion,
+.review-entry-companion,
+.review-complete-companion {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+  min-width: 0;
+  align-self: start;
+}
+.review-view .review-speech {
+  position: static;
+  display: flex;
+  align-items: center;
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+  font-size: var(--text-small);
+  line-height: 1.65;
+  min-height: 3.3em;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow-wrap: anywhere;
+  opacity: 1;
+  animation: none;
+}
+.review-speech-placeholder {
+  visibility: hidden;
+}
+.review-companion-viewport {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--paper);
+  pointer-events: none;
+  user-select: none;
+}
+.review-companion-viewport > .companion {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.review-companion-viewport .companion-figure {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  min-height: 0;
+  animation: none;
+}
+.review-companion-viewport .companion-stack-layer {
+  inset: 0;
+  transition: opacity 180ms linear;
+}
+/* The narrow 48px avatar crops the head; the illustrated states share one canvas, so one
+   crop fits every state. */
+.review-companion-viewport .companion-stack-image {
+  width: 180%;
+  height: auto;
+  max-height: none;
+  left: -40%;
+  top: -11%;
+  transform: none;
+}
+.review-companion-viewport .companion-abstract {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+}
+/* Builds without the art: the words take the whole line, with no empty circle beside them. */
+.review-companion-viewport:has(.companion-public-fallback) {
+  display: none;
+}
+:is(.review-cue-companion, .review-entry-companion, .review-complete-companion):has(
+  .companion-public-fallback
+) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.review-view
+  :is(.review-cue-companion, .review-entry-companion, .review-complete-companion):has(
+    .companion-public-fallback
+  )
+  .review-speech {
+  grid-column: 1;
+}
+
+.review-entry-layout,
+.review-complete-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+}
+.review-view :is(.review-entry-card, .review-complete-copy) {
+  padding: 0;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.review-entry-summary h3,
+.review-complete-copy h2 {
+  font-size: var(--text-heading);
+  margin-bottom: 12px;
+}
+.review-entry-summary p {
+  margin-bottom: 4px;
+}
+.review-view .review-scope-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 0;
+  margin-top: 4px;
+  border: 0;
+}
+.review-entry-controls {
+  justify-items: start;
+  padding-top: 0;
+  border-top: 0;
+}
+.review-entry-controls .button.primary-action {
+  min-width: min(100%, 16rem);
+  min-height: 60px;
+  font-size: calc(19px * var(--font-scale));
+}
+.review-session-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.review-session-results div {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.review-session-results div:first-child {
+  grid-column: 1 / -1;
+}
+.review-session-results dt {
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+.review-session-results dd {
+  margin: 0;
+  font-size: calc(24px * var(--font-scale));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.review-session-results div:first-child dd {
+  font-size: calc(48px * var(--font-scale));
+  line-height: 1.35;
+  color: var(--success);
+}
+.review-session-next {
+  padding-block: 16px;
+}
+.review-additional-due {
+  font-size: var(--text-body);
+  margin: 0;
+}
+/* The live region stays announceable but adds no blank row while it has nothing to say. */
+.review-additional-due:empty {
+  position: absolute;
+}
+.review-status-panel {
+  display: flex;
+  gap: 20px;
+  align-items: start;
+  padding: 32px 0;
+}
+.review-state-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+.review-status-panel .button {
+  justify-self: start;
+}
+
+@container review-canvas (min-width: 960px) {
+  /* Two lanes: header and card on the left, the companion lane from the top on the right. */
+  .review-card {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    column-gap: var(--review-lane-gap);
+    row-gap: 14px;
+    align-items: start;
+  }
+  .review-card > .review-session-progress {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .review-card > .review-item-meta {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .review-card > .review-cue-row {
+    display: contents;
+  }
+  .review-entry-layout,
+  .review-complete-layout {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: var(--review-lane-gap);
+  }
+  .review-reading-column {
+    grid-column: 1;
+    grid-row: 3;
+    padding: 36px 40px 32px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-raised);
+  }
+  .review-cue-companion,
+  .review-entry-companion,
+  .review-complete-companion {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 14px;
+    position: sticky;
+    top: 24px;
+  }
+  .review-cue-companion {
+    grid-row: 1 / span 3;
+  }
+  .review-view .review-speech {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: calc(76px * var(--font-scale));
+    padding: 14px 18px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--paper);
+    box-shadow: 0 1px 2px rgb(24 28 36 / 4%);
+    font-size: calc(15px * var(--font-scale));
+  }
+  /* The stamp lands on this bubble. Its words wait, so two lines of text never cross in the fade. */
+  .review-view:has(.review-step-feedback) .review-speech {
+    color: transparent;
+  }
+  .review-companion-viewport {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    max-height: min(660px, calc(100svh - 224px));
+    background: transparent;
+    border-radius: 0;
+  }
+  /* Keep the complete figure in the same frame through every phase.
+     Only the narrow avatar uses the head crop above. */
+  .review-companion-viewport .companion-stack-image {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: none;
+    object-fit: contain;
+    object-position: center top;
+  }
+  /* With no figure to show, the lane holds only the words: an empty arch would read as a broken box. */
+  .review-companion-viewport .companion-abstract {
+    display: none;
+  }
+  .review-view .recall-prompt {
+    font-size: calc(30px * var(--font-scale));
+  }
+  .review-view .review-key-takeaway {
+    font-size: var(--text-title);
+  }
+  .rating-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .review-entry-card,
+  .review-complete-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .review-view .review-entry-card {
+    padding: 32px 40px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-surface);
+  }
+  .review-entry-controls,
+  .review-complete-actions {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+  .review-entry-controls {
+    padding-top: 4px;
+  }
+  .review-session-results {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  /* The stamp lands in the companion lane's speech area: beside, never over, the question.
+     An out-of-flow rail spans the view; the stamp sticks inside it while long cards scroll. */
+  .review-step-feedback-region {
+    position: absolute;
+    inset-block: clamp(16px, 2.5vw, 40px);
+    inset-inline-end: clamp(16px, 2.5vw, 40px);
+    width: calc((100cqw - var(--review-lane-gap)) * 0.3);
+  }
+  /* Under the 现在到期 tabs the view has no side or top padding (see the top of this file). */
+  .review-section-content > .review-view .review-step-feedback-region {
+    inset-block: 0;
+    inset-inline-end: 0;
+  }
+  /* Same footprint as the speech bubble it covers for a moment, one line or two. */
+  .review-step-feedback {
+    position: sticky;
+    top: 24px;
+    width: 100%;
+    max-width: none;
+    min-height: calc(80px * var(--font-scale));
+    margin-top: 12px;
+    padding: 10px 18px;
+    column-gap: 16px;
+  }
+  .review-step-earned {
+    padding-inline-end: 0;
+  }
+  .review-view[data-review-session-phase='complete'] .review-step-feedback {
+    margin-top: 0;
+  }
+  .review-step-seal {
+    width: 52px;
+    height: 52px;
+  }
+  .review-view .review-step-amount {
+    font-size: calc(30px * var(--font-scale));
+  }
+  /* Saved-step notices sit above the lanes so the next card never jumps. */
+  .review-view[data-review-session-phase='active']
+    > .motion-state-change:has(> .notice:is(.success, .warning)) {
+    position: absolute;
+    top: 8px;
+    left: clamp(16px, 2.5vw, 40px);
+    max-width: calc((100cqw - var(--review-lane-gap)) * 0.7);
+  }
+  .review-view[data-review-session-phase='active'] .review-stage {
+    padding-top: 12px;
+  }
+}
+
+@container review-canvas (max-width: 959px) {
+  .review-view .recall-prompt {
+    font-size: calc(24px * var(--font-scale));
+  }
+  .review-reading-column {
+    gap: 24px;
+  }
+  .review-reveal-action {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .review-view {
+    padding: 16px 12px;
+    font-size: calc(17px * var(--font-scale));
+    border-radius: 8px;
+  }
+}
+
+@keyframes review-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.review-view .review-answer-reveal {
+  animation: review-reveal 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.review-view :is(.motion-state-change, .motion-enter) {
+  animation: none;
+}
+.review-view[data-reduced-motion='true'] *,
+.review-view[data-reduced-motion='true'] *::before,
+.review-view[data-reduced-motion='true'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.review-view[data-reduced-motion='true'] .button.primary-action:active:not(:disabled),
+.review-view[data-reduced-motion='true'] .button.primary-action:hover:not(:disabled),
+.review-view[data-reduced-motion='true'] .rating-grid .button:hover:not(:disabled),
+.review-view[data-reduced-motion='true'] .rating-grid .button:active:not(:disabled),
+.review-view[data-reduced-motion='true'] .rating-grid .button.is-selected {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .review-view .button.primary-action:active:not(:disabled),
+  .review-view .button.primary-action:hover:not(:disabled),
+  .review-view .rating-grid .button:hover:not(:disabled),
+  .review-view .rating-grid .button:active:not(:disabled),
+  .review-view .rating-grid .button.is-selected {
+    transform: none;
+  }
+  .review-view *,
+  .review-view *::before,
+  .review-view *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

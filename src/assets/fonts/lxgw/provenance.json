@@ -1,0 +1,628 @@
+{
+  "family": "LXGW WenKai Screen",
+  "retrievedAt": "2026-10-30",
+  "source": {
+    "registry": "https://registry.npmjs.org/",
+    "method": "npm pack with scripts disabled; WOFF2 bytes copied unchanged. No subsetting, conversion or glyph edits."
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "localPath": "/fonts/LXGW-OFL.txt",
+    "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+  },
+  "packages": [
+    {
+      "name": "lxgw-wenkai-screen-webfont",
+      "version": "1.7.0",
+      "fontVersion": "v1.250.2",
+      "tarball": "https://registry.npmjs.org/lxgw-wenkai-screen-webfont/-/lxgw-wenkai-screen-webfont-1.7.0.tgz",
+      "tarballBytes": 19475353,
+      "integrity": "sha512-xvfF4V26Mb335xKg3uxljz+V2nq4F5ek0ku9pmyKgT0Dzo/d2rHi7WpnqgvM9mlXAcAKOrxrcDmUZiIs/ZQ9bQ==",
+      "cssSource": "lxgwwenkaigbscreen.css",
+      "folder": "regular",
+      "weight": 400,
+      "faces": 97,
+      "familyInFont": "LXGW WenKai GB Screen",
+      "packageLicense": {
+        "id": "MIT",
+        "sha256": "f4264d4d1be71aa1b7578525b7a1eeef4b8f1635e1785ad3af35310954fabfa7"
+      },
+      "fontLicense": {
+        "id": "OFL-1.1",
+        "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+      },
+      "copyright": [
+        "Copyright 2021 LXGW (https://github.com/lxgw/LxgwWenKai)",
+        "Copyright 2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)"
+      ]
+    }
+  ],
+  "totals": {
+    "files": 97,
+    "bytes": 4538380
+  },
+  "files": [
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-4.woff2",
+      "weight": 400,
+      "bytes": 728,
+      "sha256": "543f9ba7920aee8608d423aae926a23172bbd0ce6d760b74324be46545c349f1"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-5.woff2",
+      "weight": 400,
+      "bytes": 11660,
+      "sha256": "e8b00e0267854ac75d92c6af549cfde9fac8ebfddc77ee94a42e9aeb078d8130"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-6.woff2",
+      "weight": 400,
+      "bytes": 5660,
+      "sha256": "e0c2b312f2924f3e01211906950a16de0464abe022ab14e586d443f8b0813071"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-21.woff2",
+      "weight": 400,
+      "bytes": 24384,
+      "sha256": "e6ff5fa49ace2ed436027a62a672710b30d4929d24b5995573b9c2e02ba7bcf1"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-22.woff2",
+      "weight": 400,
+      "bytes": 63728,
+      "sha256": "1e6169f969c264baf2c6ed38414aee8f405aa8f1990d97a7797f51855677ca42"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-23.woff2",
+      "weight": 400,
+      "bytes": 58068,
+      "sha256": "96603e7ad7608f9c8ba6fe19147ed0524ed098b16afcfc213900db436abac244"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-24.woff2",
+      "weight": 400,
+      "bytes": 59996,
+      "sha256": "d33c7ef9a0b4b6ab124d884297015f8e657b2b7f0cc07a274560943ee78ef61e"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-25.woff2",
+      "weight": 400,
+      "bytes": 57216,
+      "sha256": "ba064c51ad467d6296ffb7fb23e082618023b7103169494309fd6643716b70be"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-26.woff2",
+      "weight": 400,
+      "bytes": 58528,
+      "sha256": "c62f2f2a2cb148297d66d64e267a1d6d128978f835db54d70ec93a09596f062b"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-27.woff2",
+      "weight": 400,
+      "bytes": 50072,
+      "sha256": "2b66bd0d96e54db99b3366c16a368003ffa312bc8727ff6e79fadcc6805f0631"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-28.woff2",
+      "weight": 400,
+      "bytes": 48956,
+      "sha256": "111555eed6b4421d5421f4cb42abdbb2c7e34d901587605624a7ede07e75218d"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-29.woff2",
+      "weight": 400,
+      "bytes": 61456,
+      "sha256": "ddb46d107a6922adec45bed0bbcbe13b54704692b3bc56a776b35c92ebbef623"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-30.woff2",
+      "weight": 400,
+      "bytes": 64604,
+      "sha256": "590f50945ea2d2e870898f3bfd99889a63c83f580362677f5834432b74761eb2"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-31.woff2",
+      "weight": 400,
+      "bytes": 50432,
+      "sha256": "96f1b5f1ea4d3a7539af833f4746d1bc29f8c785621812aa9fdc1895a6f5b3b8"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-32.woff2",
+      "weight": 400,
+      "bytes": 48284,
+      "sha256": "0af5fabada72115f75b5e6eea7c63dc2fb1c02cf8b416fa95fc16cc7fee89b39"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-33.woff2",
+      "weight": 400,
+      "bytes": 53352,
+      "sha256": "0c732eaf9cc321210ba7fb4c7e18d7e8a9d831703a065d0d1fc92ddc1d2fd731"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-34.woff2",
+      "weight": 400,
+      "bytes": 48280,
+      "sha256": "41ffb95359148890e71016c3dfee08d4965c4e5033daf65fb51094680676bb71"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-35.woff2",
+      "weight": 400,
+      "bytes": 48000,
+      "sha256": "6a5a0fb725fc26206968d6c726c971e7b0da2ed665c739c04ed3f4826c29ab6d"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-36.woff2",
+      "weight": 400,
+      "bytes": 50904,
+      "sha256": "771f18d151b74d38c7acc3483e5d0bcfb2fee56da2dc24af99f7aa2cdcad34e3"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-37.woff2",
+      "weight": 400,
+      "bytes": 51900,
+      "sha256": "cb43856a29427de922f5744c12d0f1a6b7568ef7d0bbaa103936fc9ff1d533e9"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-38.woff2",
+      "weight": 400,
+      "bytes": 59232,
+      "sha256": "3243f73407d84faf71738564552e4d549636754e23965a62b511b5d06fc621fd"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-39.woff2",
+      "weight": 400,
+      "bytes": 57488,
+      "sha256": "adb845eabdb50b7e8abf919a644f3c01ed3ffe0ee71b23f23e9ce80eb4c63045"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-40.woff2",
+      "weight": 400,
+      "bytes": 53192,
+      "sha256": "471004f264f1f46c195d7628b2e2f46a28480fb2f1b39b90b6c12098bd6aba53"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-41.woff2",
+      "weight": 400,
+      "bytes": 40032,
+      "sha256": "9c59e174cb247f2445c45b44b9e280f68c8dd4657b3966da284ae771c5f08484"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-42.woff2",
+      "weight": 400,
+      "bytes": 49560,
+      "sha256": "f21195bfbbf1f1a447d5b5cdcfcec9277887d0e0329c74ccb8e098a0b5e0e029"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-43.woff2",
+      "weight": 400,
+      "bytes": 47152,
+      "sha256": "b8b563e229024e4422ed3a0dc5d7e766eb2e7f833ce209f8bf4dc29d33993609"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-44.woff2",
+      "weight": 400,
+      "bytes": 53512,
+      "sha256": "5bc462ba9d038332b87dbc374b0dae5c8edd6ae493b40349b626148b098f0369"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-45.woff2",
+      "weight": 400,
+      "bytes": 65512,
+      "sha256": "3125f8a855a070a6bf5791ef3143b9478da9c8d68b7cec76b12ef7f35cbc8ba3"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-46.woff2",
+      "weight": 400,
+      "bytes": 57260,
+      "sha256": "1ce5f59617147f7c4489471b454d92b7603b2774563577b6a3780fb23bbc5a41"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-47.woff2",
+      "weight": 400,
+      "bytes": 65796,
+      "sha256": "01c756b627b0e7b2ce60fb50de82b211b2963403be4802385db3d56dd00f62ed"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-48.woff2",
+      "weight": 400,
+      "bytes": 53724,
+      "sha256": "f395c8cce017ef0d37961ea6e33d7c9a09e3b46733aba1799b6a0cd18f8badb2"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-49.woff2",
+      "weight": 400,
+      "bytes": 57544,
+      "sha256": "7aafea94af53e4379ef2403de37c754706ababb97abddcd37edab91f5fe451bf"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-50.woff2",
+      "weight": 400,
+      "bytes": 53872,
+      "sha256": "3e7ac3a2a9625a27d32a2b3e761fefae31b0ebbd433297cb53a59588c5290d34"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-51.woff2",
+      "weight": 400,
+      "bytes": 47224,
+      "sha256": "e22a08808af9973aad279c5fd2ea36d07cf64deb101c97617dbb08fccfd7bbe0"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-52.woff2",
+      "weight": 400,
+      "bytes": 57600,
+      "sha256": "1118b86f40cf9f401c24e51324ca41cce4e4cae304159fa36d703da8d9080e7f"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-53.woff2",
+      "weight": 400,
+      "bytes": 46232,
+      "sha256": "5e35f7d050aa11bebac22af0d2b8d6049b89cf177510f28a015282e77becbeb7"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-54.woff2",
+      "weight": 400,
+      "bytes": 56708,
+      "sha256": "9d1e80f38b9568127677da0156be2e02cb190eb827c647f1ae8e12f0ed1de63b"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-55.woff2",
+      "weight": 400,
+      "bytes": 48540,
+      "sha256": "6ab68ecabc4cdda9a4c881aa2c7bdb38cf8706d66e77d811b2c276918fc214e8"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-56.woff2",
+      "weight": 400,
+      "bytes": 55768,
+      "sha256": "261a0c785c8d5a141472fe0d718cc2a7b20eb9aeda6ff7f7224bae9b20fc0834"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-57.woff2",
+      "weight": 400,
+      "bytes": 55268,
+      "sha256": "7f8f665aa67ae2b8eeb1ccf4c1aa9071c1c4477f9dc6a52590f645c0c3b6892a"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-58.woff2",
+      "weight": 400,
+      "bytes": 60924,
+      "sha256": "8abd44033cb868b980b6bd110e1d4c3834467ce8b6f6086fd9dd2925cba5f5dd"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-59.woff2",
+      "weight": 400,
+      "bytes": 50076,
+      "sha256": "0594a2453dc379be4b8def2b118b40dccafbafba06471d999a2ab0c7d91a0bd9"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-60.woff2",
+      "weight": 400,
+      "bytes": 41924,
+      "sha256": "c092793294e777ebefd996b4c51e737e38c15de83b6762d7efec76c2df60810c"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-61.woff2",
+      "weight": 400,
+      "bytes": 42356,
+      "sha256": "17105a6fba5cf9efc52ba2c4885e2933f5dbce3f8350f0e4668127b55829fbf4"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-62.woff2",
+      "weight": 400,
+      "bytes": 67032,
+      "sha256": "d5b19235f69d83a2b8812b9a42b554107fd2c5374095c0e817e10a9557c37e8f"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-63.woff2",
+      "weight": 400,
+      "bytes": 55240,
+      "sha256": "66a2870566ed6696c99aa317a25a572951565b34dfc324f3fba45b2b00c5acf0"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-64.woff2",
+      "weight": 400,
+      "bytes": 43920,
+      "sha256": "4038109fe2a03ee42601684e3ff7c1629a5cf2b50cf18bf92275c9b498fff179"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-65.woff2",
+      "weight": 400,
+      "bytes": 47824,
+      "sha256": "ed3c2fe2381c7a380d124d1459595f0be8641fc7a9916ff6de863c63a1a721a6"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-66.woff2",
+      "weight": 400,
+      "bytes": 54968,
+      "sha256": "78cf144c023f53805f9bfa5d39ff538f9c8c0a5cb179b163cf27833a3b9ee47b"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-67.woff2",
+      "weight": 400,
+      "bytes": 60372,
+      "sha256": "e5d711d857cd039c506c1991b744791ab041d0ff8d04665a0cc637f177caad90"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-68.woff2",
+      "weight": 400,
+      "bytes": 45596,
+      "sha256": "c121738c8372b0a836daa752bdceda18a1f37874f7a47f1abdc01c6728a7a31c"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-69.woff2",
+      "weight": 400,
+      "bytes": 61236,
+      "sha256": "6949fc6792e8a941eb8c782a4e998aa7d68444cb55ae42129fc27b3a7125edfa"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-70.woff2",
+      "weight": 400,
+      "bytes": 44288,
+      "sha256": "664e4c1c017aa2e1495763047465afb13b0f8d2410b321f1f332390a61604cba"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-71.woff2",
+      "weight": 400,
+      "bytes": 49912,
+      "sha256": "e149f829911b5982a410ac6c2ffbc1b68080bbe11db4000e031e36443554b40a"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-72.woff2",
+      "weight": 400,
+      "bytes": 54088,
+      "sha256": "16ecc17583b701ea567c6d77b7852ddea89db339fa49086fdfd8ef3ebbf79dd6"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-73.woff2",
+      "weight": 400,
+      "bytes": 41544,
+      "sha256": "d7ff5960bec88f4d9468eec9408936356395f28a8ec5ea5e4a0a2e9a6933c6e8"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-74.woff2",
+      "weight": 400,
+      "bytes": 62804,
+      "sha256": "e1232811f89c1c298f8016241350b4d57012937b53e8418c55f3848037a12ba9"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-75.woff2",
+      "weight": 400,
+      "bytes": 51420,
+      "sha256": "42d78f39a6ae118bc696490eaf1fbb665766ae9f80cdb6a104502c8bcd9ae076"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-76.woff2",
+      "weight": 400,
+      "bytes": 53964,
+      "sha256": "92cf2f334893be8bfb2440d22ff8f4c41f50ae9575712964f868fdbdc0b48a5e"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-77.woff2",
+      "weight": 400,
+      "bytes": 42236,
+      "sha256": "8c888fc5980a41d8f58ae2a2813106e9585f0e74afac0304e5ce8819c5f99c3d"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-78.woff2",
+      "weight": 400,
+      "bytes": 56452,
+      "sha256": "610a6f00764062dc820f64b707870f01a6ae9770b11fcc5e76b5f8885a2a5ab1"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-79.woff2",
+      "weight": 400,
+      "bytes": 46724,
+      "sha256": "67f480ef346801b5260cb51965ca4b220cd33c17d31652520d7d27ab5e0f3837"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-80.woff2",
+      "weight": 400,
+      "bytes": 34112,
+      "sha256": "03c65cb9d1de889faa3f0041067a1603f076a3d19592b9c3b09e948e2475e4ca"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-81.woff2",
+      "weight": 400,
+      "bytes": 46164,
+      "sha256": "18d8baa2f5e41db76ed9c561766859f74172a395de3956c24b343be34a848fce"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-82.woff2",
+      "weight": 400,
+      "bytes": 46848,
+      "sha256": "c1b64f7e06c593a4b8d80a73cfa884e6011004478cfa8ca4fd0e81cff8645b2e"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-83.woff2",
+      "weight": 400,
+      "bytes": 49652,
+      "sha256": "02117c0c87db90eb055a208e2c1a36b4fa5d09fc2e6df22bb3c47555f2d1e227"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-84.woff2",
+      "weight": 400,
+      "bytes": 33500,
+      "sha256": "4bb259f6e30d066fe83741c21e510949bcebcabedc0b1a62022865f95baccbbd"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-85.woff2",
+      "weight": 400,
+      "bytes": 22188,
+      "sha256": "8b774c750edf0bdcfbbb7a51781fd374a74441456c03643624513107bd9535dd"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-86.woff2",
+      "weight": 400,
+      "bytes": 16048,
+      "sha256": "6ce39d532e755a4f27c06a03c29f04ae719446fc44df1c431a21db3a9e21b4bd"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-87.woff2",
+      "weight": 400,
+      "bytes": 5040,
+      "sha256": "cb0d699c2fdaf146705cb8ac6e62e150863d0260f418bab8a47e36f6673cec96"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-88.woff2",
+      "weight": 400,
+      "bytes": 4864,
+      "sha256": "826874b47e9231e015526288287c20abf0e93d406125453bdbc6bcc0a82b9db2"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-89.woff2",
+      "weight": 400,
+      "bytes": 8628,
+      "sha256": "25172eb560445bf79356f5676adcb6f2a6d0f4f68c26dc8193cba00d9054a4a7"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-90.woff2",
+      "weight": 400,
+      "bytes": 9260,
+      "sha256": "247a67370015a03a20373e4d331561d206c7c90e14aebcfa8978c8b07d452243"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-91.woff2",
+      "weight": 400,
+      "bytes": 6192,
+      "sha256": "2c64b1a1929c624f3ab9d60b2cc05d72aaa70cf011c8ac60aa89dc275d6a5a8b"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-97.woff2",
+      "weight": 400,
+      "bytes": 3228,
+      "sha256": "7068f0c18810628fa50e6395ca5e8677bacff4fc0f621621f78769aa762a789a"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-98.woff2",
+      "weight": 400,
+      "bytes": 12588,
+      "sha256": "302aa0647b7b79a108f6a941594851c79f0836b03db5b1f36f44d26c4fa2e39b"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-99.woff2",
+      "weight": 400,
+      "bytes": 11100,
+      "sha256": "195909c50f859953089a820359c2d7d7ac665e3eed25e42f211396dbee7dfb6f"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-100.woff2",
+      "weight": 400,
+      "bytes": 61936,
+      "sha256": "4bd75fb894bf292d9420bcfca0ad443e15530c9bd430c6097e83435d9b37c10c"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-101.woff2",
+      "weight": 400,
+      "bytes": 56004,
+      "sha256": "e66d7e168a6c41e0a4ca0988d18f55fc5d97ada697a05175f6718359b13c9f6a"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-102.woff2",
+      "weight": 400,
+      "bytes": 58712,
+      "sha256": "2a65742317a1fb99649b88ab6473ec1c7cb2ceeff7905b833dfbad55e3a1b8d4"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-103.woff2",
+      "weight": 400,
+      "bytes": 62104,
+      "sha256": "5ba751816c99b8d1692cf37595da3117dbaf60fe73c925249dd88919beb60c39"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-104.woff2",
+      "weight": 400,
+      "bytes": 59416,
+      "sha256": "a6051ee8aa3b1f1e14a01f4a8ba272b71b4051d11a532e53d244110feea38c59"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-105.woff2",
+      "weight": 400,
+      "bytes": 60524,
+      "sha256": "e43a578b804912f7c276999047e6f896cf1d10fa69c4df356ac75233ce45ec58"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-106.woff2",
+      "weight": 400,
+      "bytes": 59588,
+      "sha256": "935d680e8e171c288e983e04621f5a7270f41285eb698f84b76d44905f42b936"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-107.woff2",
+      "weight": 400,
+      "bytes": 59080,
+      "sha256": "5c7083194d743738e9aa80e963ea4fea4577b7bf06bc821f4028844d288fdd9f"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-108.woff2",
+      "weight": 400,
+      "bytes": 59788,
+      "sha256": "a3364a618952f4cb6957ee14e918c214957158f47d120aef962ac143b7c4bdc1"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-109.woff2",
+      "weight": 400,
+      "bytes": 57924,
+      "sha256": "e6688e049f1e6597adb0e17bb75b501f942a6fc8656373d1b6e956d3a0020864"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-110.woff2",
+      "weight": 400,
+      "bytes": 57080,
+      "sha256": "448c0de6d9a1e1cdaa3872c4b9fde32330e52704ff994b8ab7d753f8f81df9f5"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-111.woff2",
+      "weight": 400,
+      "bytes": 59272,
+      "sha256": "04b67b83490a457cc5df1ad14a1815d958e69f92ef6333359fd48ef9963c62b7"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-112.woff2",
+      "weight": 400,
+      "bytes": 55984,
+      "sha256": "7d280902f27049ebbe0999321c21a2eb5687b6761ada42bcf6b561892e0e01a8"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-113.woff2",
+      "weight": 400,
+      "bytes": 55360,
+      "sha256": "7f093dc26e981d018230988473121bc77e2b816438a807f90b9fb9d73116eaf1"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-114.woff2",
+      "weight": 400,
+      "bytes": 54136,
+      "sha256": "693c92b6c1815b12d9dc6ed3531fa5ee2f357f2a0cb264318fe5234586f42821"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-115.woff2",
+      "weight": 400,
+      "bytes": 51296,
+      "sha256": "923ec160fadaf0204ea1f329711eca8399267e30ef26d75518ee1d93f966ecc0"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-116.woff2",
+      "weight": 400,
+      "bytes": 48912,
+      "sha256": "d8e567feda11cf64ad07729af8c609a51e977f20d8ea4218a4243d05bb9983dc"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-117.woff2",
+      "weight": 400,
+      "bytes": 47584,
+      "sha256": "9275af3cdf1f870db9d378051bf81e0de9f2aecc1b9e24b34b5cc548e253cc2e"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-118.woff2",
+      "weight": 400,
+      "bytes": 41532,
+      "sha256": "eda48ef56791b5a5d90410f176a09e5fcb12ac1c588c71963245b57e8e22c46d"
+    },
+    {
+      "file": "regular/lxgwwenkaigbscreen-subset-119.woff2",
+      "weight": 400,
+      "bytes": 30412,
+      "sha256": "741ea5ddb8ee5c5d4cfbadeeae6a3d0c77eb3634b910127df9a4df0f7e181d3d"
+    }
+  ]
+}

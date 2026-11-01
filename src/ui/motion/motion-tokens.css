@@ -1,0 +1,16 @@
+:root {
+  --motion-instant: 90ms;
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --motion-emphasis: 320ms;
+  --motion-scene: 420ms;
+  --motion-stagger-step: 60ms;
+  --motion-confirmation-hold: 560ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-xs: 4px;
+  --motion-distance-sm: 8px;
+  --motion-distance-md: 12px;
+  --motion-muted-opacity: 0.58;
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From the phone app palette (src/mobile/mobile.css). -->
+<resources>
+    <color name="widget_surface">#FFFFFF</color>
+    <color name="widget_border">#DEE1E5</color>
+    <color name="widget_ink">#24262B</color>
+    <color name="widget_muted">#626770</color>
+    <color name="widget_accent">#345FDB</color>
+    <color name="widget_accent_fill">#345FDB</color>
+    <color name="widget_accent_soft">#EEF2FF</color>
+    <color name="widget_on_accent">#FFFFFF</color>
+    <color name="widget_track">#E4E7EC</color>
+    <color name="widget_circle">#868B95</color>
+    <color name="widget_danger">#A23C35</color>
+    <color name="widget_ripple">#1F345FDB</color>
+</resources>

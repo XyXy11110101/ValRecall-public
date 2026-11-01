@@ -1,0 +1,71 @@
+.reading-window[hidden] {
+  display: none;
+}
+
+.reading-capture {
+  max-width: 48rem;
+  min-width: 0;
+  margin-inline: 0;
+  padding-block: 0 2rem;
+  overflow-wrap: anywhere;
+}
+
+.reading-fields {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.reading-capture textarea {
+  resize: vertical;
+  min-height: 6rem;
+  line-height: 1.6;
+}
+
+.reading-guides {
+  padding-block: 1rem;
+  border-block: 1px solid var(--line);
+}
+
+.reading-guides button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.reading-excerpt,
+.reading-question,
+.reading-answer {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 65ch;
+}
+
+.reading-excerpt {
+  margin: 1rem 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 2px solid var(--line);
+  color: var(--muted);
+}
+
+.reading-source-details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 0.5rem;
+}
+
+.reading-source-details > .stack {
+  padding-block: 1rem;
+}
+
+.reading-reward {
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+}
+
+.capture-mode-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}

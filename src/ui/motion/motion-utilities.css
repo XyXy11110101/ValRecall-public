@@ -1,0 +1,82 @@
+/* Content appears immediately; movement is reserved for real loading. */
+.motion-enter,
+.motion-reveal,
+.motion-confirm,
+.motion-exit,
+.motion-emphasis,
+.motion-state-change,
+.motion-route-enter,
+.motion-view-swap,
+.motion-list-enter,
+.motion-count-change {
+  animation: none;
+  transform: none;
+}
+.motion-count-change {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+.motion-press {
+  transition:
+    background-color var(--motion-fast) linear,
+    border-color var(--motion-fast) linear;
+}
+.motion-press:active:not(:disabled) {
+  transform: none;
+}
+.motion-loading-indicator {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  flex: 0 0 auto;
+  border: 2px solid var(--line);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: motion-loading 900ms linear infinite;
+}
+/* Busy buttons reuse the one genuine loading loop instead of fading out. */
+.button[aria-busy='true']::after {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  content: '';
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: motion-loading 900ms linear infinite;
+}
+.motion-thumbnail {
+  opacity: 1;
+}
+.motion-disclosure {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: opacity var(--motion-fast) linear;
+}
+.motion-disclosure[data-expanded='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.motion-disclosure-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+@keyframes motion-loading {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto !important;
+  }
+  .motion-loading-indicator,
+  .button[aria-busy='true']::after {
+    animation: none;
+  }
+  .motion-press,
+  .motion-disclosure {
+    transition: none;
+  }
+}

@@ -1,0 +1,18 @@
+/* Until the choice is known, and whenever it is off, rewards are not on the page at all. */
+html:not([data-rewards='on']) [data-allowance-stat='balance'],
+html:not([data-rewards='on']) [data-wallet-target],
+html:not([data-rewards='on']) .home-task-wallet,
+html:not([data-rewards='on']) .tasks-wallet-chip,
+html:not([data-rewards='on']) .task-coin-layer,
+html:not([data-rewards='on']) .review-session-earned,
+html:not([data-rewards='on']) .review-allowance-copy,
+html:not([data-rewards='on']) .review-earned-total,
+html:not([data-rewards='on']) .review-step-earned,
+html:not([data-rewards='on']) .reading-reward,
+html:not([data-rewards='on']) .capture-reward-confirmation {
+  display: none;
+}
+
+html:not([data-rewards='on']) .home-summary-aside {
+  grid-template-columns: repeat(2, minmax(max-content, 1fr));
+}

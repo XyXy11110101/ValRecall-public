@@ -1,0 +1,658 @@
+/* The 工作中 card, Home's working layout and the row actions that feed them. Imported by the
+   component, never by global.css. Two finite animations: the last overdue row's fold, and the view
+   transition into and out of the working layout. */
+
+/* Row 3 of the card grid, outside the scroller, so the card stays put while the list scrolls. */
+.home-working-slot {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
+}
+.home-working-slot:empty {
+  display: none;
+}
+
+.home-working-card {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--accent-soft);
+  border-radius: var(--radius-control);
+}
+/* Starts where the round check starts, not at the edge of its larger hit area. */
+.home-working-card h4 {
+  margin: 0;
+  padding-inline-start: 0.6875rem;
+  color: var(--accent-hover);
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+.home-working-card .home-task-list li.home-task-undo {
+  padding-inline-start: 1.1875rem;
+}
+.home-working-card .home-task-list li:is(:hover, :focus-within) {
+  background: transparent;
+}
+/* One line, whatever the width: three stray buttons must not stack beside a long title. */
+.home-working-card .home-task-list li > .home-task-actions {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+/* A finished card has nothing left to press, and its title must not move when they go. */
+.home-working-card .home-task-list li:is(.is-completing, .home-task-ghost) > .home-task-actions {
+  visibility: hidden;
+}
+.home-working-card .home-task-list li.home-task-ghost {
+  background: transparent;
+}
+
+/* Starts where the task title starts, past the round check. */
+.home-working-fields {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+  padding-inline-start: 3.35rem;
+}
+
+/* The next step: quieter than the title and the date, and only ever one small line. */
+.home-working-next {
+  justify-self: start;
+  max-width: 48rem;
+  min-height: 2rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.5;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+}
+.home-working-next:hover {
+  color: var(--accent-hover);
+}
+.home-working-card .home-working-fields input.home-working-next-input {
+  max-width: 48rem;
+  min-height: 2rem;
+  padding: 0;
+  color: var(--ink);
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.5;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0;
+}
+.home-working-card .home-working-fields input.home-working-next-input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+/* The note is part of the card: no box at rest or in use, just a hairline above it. */
+.home-working-notes {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+.home-working-notes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.home-working-notes-head label {
+  font-weight: 600;
+}
+.home-working-notes-status {
+  font-size: calc(13px * var(--font-scale));
+}
+.home-working-notes-retry {
+  padding: 0;
+  color: var(--danger);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+}
+/* Its card has moved on: the words stay readable until they are saved or given up. */
+.home-working-stranded {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+}
+.home-working-stranded p {
+  margin: 0;
+}
+.home-working-stranded .button.text-button {
+  min-height: 2.75rem;
+  padding-inline: var(--space-1);
+}
+.home-working-stranded .home-working-stranded-text {
+  flex-basis: 100%;
+  max-height: calc(7.5rem * var(--font-scale));
+  overflow-y: auto;
+  color: var(--ink);
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+/* Lines stop at a readable length, however wide the window is. */
+.home-working-card .home-working-notes textarea {
+  display: block;
+  max-width: 48rem;
+  min-height: 4.5rem;
+  padding: var(--space-1) 0;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  resize: none;
+  field-sizing: content;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.home-working-card .home-working-notes textarea::placeholder {
+  color: var(--muted);
+}
+.home-working-card .home-working-notes textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 1px 0 var(--accent);
+}
+@container home-layout (min-width: 1024px) {
+  .home-working-slot {
+    max-height: 20rem;
+    overflow-y: auto;
+  }
+}
+
+/* Working layout: review shrinks to one line, and the task takes the page. The page changes once
+   when a card starts and when it ends; useWorkingLayoutTransition animates that one change. */
+.home-review-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-surface);
+}
+.home-review-strip-head {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: #f1f4fa;
+  border-radius: 50%;
+  pointer-events: none;
+  user-select: none;
+}
+.home-review-strip-due {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.home-review-strip-due strong {
+  color: var(--ink);
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.button.home-review-strip-action {
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0.42rem 0.9rem;
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+.button.home-review-strip-action .action-icon {
+  width: 18px;
+  height: 18px;
+}
+.home-review-strip-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-4);
+  margin-inline-start: auto;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.home-review-strip-stats > * {
+  margin: 0;
+  white-space: nowrap;
+}
+.home-review-strip-stats strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.home-review-strip-stats button {
+  min-height: 2.75rem;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+}
+.home-review-strip-stats button:hover {
+  color: var(--accent-hover);
+}
+
+.home-layout[data-working] .home-workspaces {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* The card grows with what is written on it, and the page scrolls: no box of its own to scroll. */
+.home-layout[data-working] .home-tasks-rail {
+  min-height: 0;
+  contain: none;
+}
+.home-layout[data-working] .home-tasks-card {
+  grid-template-rows: auto;
+  max-height: none;
+}
+.home-layout[data-working] .home-tasks-header {
+  position: static;
+}
+.home-layout[data-working] .home-working-slot {
+  max-height: none;
+  overflow: visible;
+}
+.home-layout[data-working] .home-task-scroll {
+  margin-inline-end: 0;
+  padding-inline-end: 0;
+  overflow: visible;
+  scrollbar-gutter: auto;
+}
+/* The strip's wallet is on screen: a second one on the task card would only repeat it. */
+.home-layout[data-working] .home-task-counts .home-task-wallet {
+  display: none;
+}
+.home-layout[data-working] .home-working-slot {
+  padding-top: var(--space-4);
+}
+.home-layout[data-working] .home-working-card {
+  /* The card sits outside .home-task-scroll, which gives the rows their wrapping. */
+  overflow-wrap: anywhere;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+}
+.home-layout[data-working] .home-working-card .home-task-content strong {
+  font-size: calc(21px * var(--font-scale));
+  font-weight: 600;
+  line-height: 1.4;
+  -webkit-text-stroke: var(--heading-stroke) currentColor;
+}
+/* The next step reads as part of the task, not as the next block down. */
+.home-layout[data-working] .home-working-fields {
+  margin-top: -0.875rem;
+}
+/* The strip keeps the page's one filled button; adding a task stays within reach, quietly. */
+.home-layout[data-working] .home-tasks-header > .button.primary-action {
+  min-height: 2.75rem;
+  padding: 0.42rem 0.9rem;
+  color: var(--accent-hover);
+  font-size: var(--text-small);
+  font-weight: 600;
+  background: var(--accent-soft);
+  border-color: #d3dcf8;
+  box-shadow: none;
+}
+.home-layout[data-working] .home-tasks-header > .button.primary-action:hover:not(:disabled),
+.home-layout[data-working] .home-tasks-header > .button.primary-action:active:not(:disabled) {
+  background: #e1e8fd;
+  border-color: #b4c4f3;
+  box-shadow: none;
+  transform: none;
+}
+.home-layout[data-working] .home-tasks-header > .button.primary-action .action-icon {
+  width: 18px;
+  height: 18px;
+}
+@container home-layout (min-width: 42em) {
+  .home-layout[data-working] .home-tasks-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+  }
+  .home-layout[data-working] .home-task-counts {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .home-layout[data-working] .home-tasks-header > .button.primary-action {
+    grid-row: 1;
+    grid-column: 3;
+    align-self: center;
+  }
+}
+
+/* The browser gives the sticky sidebar a layer of its own only while the page can scroll, and text
+   on its own layer is drawn differently. Only one of Home's layouts scrolls, so the sidebar's text
+   would change weight as the layout flips. On Home it always has the layer. */
+@media (min-width: 901px) {
+  html:has(.home-layout) .dashboard-sidebar {
+    will-change: opacity;
+  }
+}
+
+/* The flip between the two layouts, run by useWorkingLayoutTransition. These names exist only while
+   its attribute is set: a named element is its own stacking context, and nothing else is one. */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* The page itself is never a picture. What does not move stays live, pixel for pixel, and a
+       click reaches the real page underneath. The browser does not hit-test a named element, so a
+       click meant for one lands around it: useWorkingLayoutTransition sends it on from there. */
+    html[data-working-flip] {
+      view-transition-name: none;
+    }
+    html[data-working-flip]::view-transition,
+    html[data-working-flip]::view-transition-group(*) {
+      pointer-events: none;
+    }
+    /* A scrolled page comes back up when it gets shorter, and the sticky sidebar shifts with it.
+       global.css pins the active tab in place, which would part it from the rest. */
+    html[data-working-flip-scrolled] .dashboard-sidebar {
+      view-transition-name: working-flip-sidebar;
+    }
+    html[data-working-flip-scrolled] .nav-tab.active {
+      view-transition-name: none;
+    }
+    html[data-working-flip] .home-tasks-card {
+      view-transition-name: working-flip-tasks;
+    }
+    html[data-working-flip] :is(.home-today, .home-review-strip) {
+      view-transition-name: working-flip-review;
+    }
+    html[data-working-flip] .home-recent-region {
+      view-transition-name: working-flip-recent;
+    }
+    html[data-working-flip] .home-support-grid {
+      view-transition-name: working-flip-support;
+    }
+    /* The transition draws these two boxes itself, since each changes shape around its contents.
+       Only the new page gives its edge up: its snapshot is what the browser shows next. */
+    html[data-working-flip-new] :is(.home-tasks-card, .home-today, .home-review-strip) {
+      border-color: transparent;
+      box-shadow: none;
+    }
+    html[data-working-flip]::view-transition-group(*) {
+      animation-duration: 380ms;
+      animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
+    }
+    /* Above what fades, whichever came first on the page. */
+    html[data-working-flip]::view-transition-group(working-flip-tasks) {
+      z-index: 1;
+    }
+    html[data-working-flip]::view-transition-image-pair(working-flip-tasks),
+    html[data-working-flip]::view-transition-image-pair(working-flip-review) {
+      overflow: clip;
+      background: var(--paper);
+      border-radius: var(--radius-surface);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    /* The big card is raised and the strip is not. */
+    html[data-working-flip='into']::view-transition-image-pair(working-flip-review) {
+      animation: working-flip-settle 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
+    }
+    html[data-working-flip='back']::view-transition-image-pair(working-flip-review) {
+      animation: working-flip-settle 380ms cubic-bezier(0.33, 0, 0.2, 1) reverse both;
+    }
+    /* A coin can still be in the air. It stays over the pictures as it does over the page, and live:
+       one that was flying when the flip began has been replaced by the coin for the newer task. */
+    html[data-working-flip] .task-coin-layer {
+      view-transition-name: working-flip-coin;
+    }
+    html[data-working-flip]::view-transition-group(working-flip-coin) {
+      z-index: 3;
+      animation: none;
+    }
+    html[data-working-flip]::view-transition-old(working-flip-coin) {
+      display: none;
+    }
+    html[data-working-flip]::view-transition-new(working-flip-coin) {
+      animation: none;
+    }
+    /* Contents do not ride along: they keep their size and stay where they are on screen, and the
+       box moving around them is what covers and uncovers them. Nothing is stretched, and only the
+       one row travels. Their own hairline is cut away, so the box draws the only edge there is. */
+    html[data-working-flip]::view-transition-old(working-flip-tasks),
+    html[data-working-flip]::view-transition-new(working-flip-tasks) {
+      --working-flip-x: var(--working-flip-tasks-x, 0px);
+      --working-flip-y: var(--working-flip-tasks-y, 0px);
+    }
+    html[data-working-flip]::view-transition-old(working-flip-review),
+    html[data-working-flip]::view-transition-new(working-flip-review) {
+      --working-flip-x: var(--working-flip-review-x, 0px);
+      --working-flip-y: var(--working-flip-review-y, 0px);
+    }
+    html[data-working-flip]::view-transition-old(working-flip-tasks),
+    html[data-working-flip]::view-transition-old(working-flip-review),
+    html[data-working-flip]::view-transition-new(working-flip-tasks),
+    html[data-working-flip]::view-transition-new(working-flip-review) {
+      clip-path: inset(1px round calc(var(--radius-surface) - 1px));
+    }
+    html[data-working-flip]::view-transition-old(working-flip-tasks),
+    html[data-working-flip]::view-transition-old(working-flip-review),
+    html[data-working-flip]::view-transition-old(working-flip-recent),
+    html[data-working-flip]::view-transition-old(working-flip-support),
+    html[data-working-flip]::view-transition-new(working-flip-tasks),
+    html[data-working-flip]::view-transition-new(working-flip-review),
+    html[data-working-flip]::view-transition-new(working-flip-recent),
+    html[data-working-flip]::view-transition-new(working-flip-support) {
+      width: auto;
+      height: auto;
+      mix-blend-mode: normal;
+    }
+    /* The old drops quickly, so the row does not cross a page of grey text, and the new has arrived
+       by the time the boxes come to rest. The two barely overlap. */
+    html[data-working-flip]::view-transition-old(working-flip-recent),
+    html[data-working-flip]::view-transition-old(working-flip-support) {
+      animation: working-flip-contents-out 380ms cubic-bezier(0.3, 0.5, 0.7, 1) both;
+    }
+    html[data-working-flip]::view-transition-new(working-flip-recent),
+    html[data-working-flip]::view-transition-new(working-flip-support) {
+      animation: working-flip-contents-in 380ms linear both;
+    }
+    html[data-working-flip]::view-transition-old(working-flip-tasks),
+    html[data-working-flip]::view-transition-old(working-flip-review) {
+      animation:
+        working-flip-contents-out 380ms cubic-bezier(0.3, 0.5, 0.7, 1) both,
+        working-flip-still-old 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
+    }
+    html[data-working-flip]::view-transition-new(working-flip-tasks),
+    html[data-working-flip]::view-transition-new(working-flip-review) {
+      animation:
+        working-flip-contents-in 380ms linear both,
+        working-flip-still-new 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
+    }
+    /* The title scales from one size to the other, and the check glides beside it. The two arrive
+       a little ahead of everything else, so they are in place before the new page shows around them. */
+    html[data-working-flip]::view-transition-group(working-flip-title),
+    html[data-working-flip]::view-transition-group(working-flip-check) {
+      z-index: 2;
+      animation-duration: 320ms;
+    }
+    html[data-working-flip]::view-transition-old(working-flip-title),
+    html[data-working-flip]::view-transition-new(working-flip-title) {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+@keyframes working-flip-contents-out {
+  45%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes working-flip-contents-in {
+  0%,
+  15% {
+    opacity: 0;
+  }
+  80%,
+  100% {
+    opacity: 1;
+  }
+}
+/* The exact opposite of the box's own glide, set by useWorkingLayoutTransition: same curve, same
+   length, so the two cancel out on screen. */
+@keyframes working-flip-still-old {
+  to {
+    translate: var(--working-flip-x) var(--working-flip-y);
+  }
+}
+@keyframes working-flip-still-new {
+  from {
+    translate: calc(var(--working-flip-x) * -1) calc(var(--working-flip-y) * -1);
+  }
+}
+@keyframes working-flip-settle {
+  from {
+    box-shadow:
+      inset 0 0 0 1px var(--line),
+      var(--shadow-raised);
+  }
+  to {
+    box-shadow:
+      inset 0 0 0 1px var(--line),
+      0 1px 2px transparent,
+      0 12px 32px -18px transparent;
+  }
+}
+
+.home-working-rest-toggle.button.text-button {
+  justify-self: start;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding-inline: var(--space-1);
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+/* Drawn, not typed: the reading font has no such glyph, and a borrowed one sits low and tiny. */
+.home-working-rest-toggle[aria-expanded='false']::after {
+  flex: none;
+  content: '';
+  border-block: 0.25rem solid transparent;
+  border-inline-start: 0.375rem solid currentColor;
+}
+
+/* Quiet until the row is in use, so a long list does not gain a wall of buttons. */
+.home-task-list li > .home-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  align-items: center;
+}
+.button.home-task-start,
+.button.home-task-put-down,
+.button.home-task-more {
+  align-self: center;
+  min-width: 44px;
+  padding-inline: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.home-task-list
+  li:is(:hover, :focus-within)
+  :is(.button.home-task-start, .button.home-task-put-down) {
+  color: var(--accent-hover);
+}
+.home-task-list li > .home-task-plan {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  justify-content: end;
+  gap: 0 var(--space-4);
+}
+.home-task-plan .button.text-button {
+  min-height: 44px;
+  font-size: var(--text-small);
+}
+
+/* The last overdue row takes its heading with it, so the list closes up once. */
+.home-task-group.is-folding {
+  overflow: hidden;
+  interpolate-size: allow-keywords;
+  animation: home-task-group-fold 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes home-task-group-fold {
+  to {
+    height: 0;
+    padding-block: 0;
+    opacity: 0;
+  }
+}
+
+.home-task-list li.home-task-undo {
+  grid-template-columns: minmax(0, 1fr) auto;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.home-task-skipped-mark {
+  width: 2.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+@container home-layout (max-width: 36em) {
+  /* Under the title, the first word lines up with it: the buttons' padding hangs to the left. */
+  .home-task-list li > .home-task-actions {
+    grid-column: 2 / -1;
+    justify-content: start;
+    margin-inline-start: calc(-1 * var(--space-2));
+  }
+  .home-task-list li > .home-task-plan {
+    grid-column: 2 / -1;
+    justify-content: start;
+  }
+  .home-layout[data-working] .home-working-card {
+    padding: var(--space-3);
+  }
+}
+
+/* Settings: the two-week comparison, numbers only. */
+.task-trial-table {
+  width: 100%;
+  margin-top: var(--space-2);
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+.task-trial-table :is(th, td) {
+  padding: var(--space-1) var(--space-2);
+  text-align: right;
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+}
+.task-trial-table thead th {
+  white-space: nowrap;
+}
+.task-trial-table tbody th {
+  text-align: left;
+}
+/* The rules run edge to edge, and so does the text: flush with 两周对比 above it. */
+.task-trial-table :is(th, td):first-child {
+  padding-inline-start: 0;
+}
+.task-trial-table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+.task-trial-table td {
+  font-variant-numeric: tabular-nums;
+}

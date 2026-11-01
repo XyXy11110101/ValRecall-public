@@ -1,0 +1,12 @@
+Fonts in this extension / 这个扩展带的字体
+
+LXGW WenKai Screen（霞鹜文楷屏幕阅读版）
+Package lxgw-wenkai-screen-webfont 1.7.0, font version v1.250.2. The font files are unchanged.
+Copyright 2021 LXGW (https://github.com/lxgw/LxgwWenKai)
+Copyright 2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)
+Licensed under the SIL Open Font License 1.1: see LXGW-OFL.txt beside this file.
+
+Noto Sans SC（思源黑体）
+Files from Google Fonts. The font files are unchanged.
+(c) 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+Licensed under the SIL Open Font License 1.1: see OFL.txt beside this file.

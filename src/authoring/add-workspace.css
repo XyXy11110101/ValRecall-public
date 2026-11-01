@@ -1,0 +1,11 @@
+.add-workspace {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.add-workspace > header h2 {
+  margin-block: 0;
+}
+.add-mode-switch {
+  display: flex;
+  margin-bottom: 0.25rem;
+}

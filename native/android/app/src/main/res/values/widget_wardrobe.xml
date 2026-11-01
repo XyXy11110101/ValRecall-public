@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One slot per outfit, in the rotation order of src/companion/wardrobe-manifest.json, indexed by
+    WidgetWardrobe.outfitIndex. The public build shows the neutral vector in every slot; the private
+    release overlay replaces these arrays with the same names, sizes and order.
+-->
+<resources>
+    <array name="widget_wardrobe_head_smile">
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+        <item>@drawable/widget_pose_head_smile</item>
+    </array>
+    <array name="widget_wardrobe_head_talk">
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+        <item>@drawable/widget_pose_head_talk</item>
+    </array>
+    <array name="widget_wardrobe_head_joy">
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+        <item>@drawable/widget_pose_head_joy</item>
+    </array>
+    <array name="widget_wardrobe_head_worried">
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+        <item>@drawable/widget_pose_head_worried</item>
+    </array>
+    <array name="widget_wardrobe_calm">
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+        <item>@drawable/widget_pose_calm</item>
+    </array>
+    <array name="widget_wardrobe_sleepy">
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+        <item>@drawable/widget_pose_sleepy</item>
+    </array>
+    <array name="widget_wardrobe_peace">
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+        <item>@drawable/widget_pose_peace</item>
+    </array>
+</resources>

@@ -1,0 +1,28 @@
+.note-content {
+  max-width: 65ch;
+}
+.note-content p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.note-content h4 {
+  margin-block: 0.5rem;
+}
+.legacy-notes-archive,
+.legacy-note {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  border-top: 1px solid var(--line);
+  padding-block: 0.75rem;
+}
+.legacy-notes-archive > summary,
+.legacy-note > summary {
+  min-height: 44px;
+  padding-block: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.legacy-notes-archive > .stack,
+.legacy-note > .note-content {
+  margin-block: 0.75rem 1rem;
+}

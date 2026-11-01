@@ -1,0 +1,59 @@
+/* The font and text size controls in Settings. Imported by the component. */
+.typography-settings fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.typography-settings legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: 600;
+}
+.typography-fonts {
+  display: grid;
+  max-width: 36rem;
+  gap: var(--space-2);
+}
+.typography-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.typography-option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+}
+.typography-option:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.typography-option input {
+  flex: none;
+  width: auto;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.typography-font-name {
+  min-width: 6em;
+}
+/* Each sample in its own font, so the fonts and their digits can be compared side by side. */
+.typography-font-sample[data-font-sample='wenkai'] {
+  font-family: var(--font-stack-wenkai);
+}
+.typography-font-sample[data-font-sample='misans'] {
+  font-family: var(--font-stack-misans);
+}
+.typography-font-sample[data-font-sample='noto'] {
+  font-family: var(--font-stack-noto);
+}
+.typography-font-sample[data-font-sample='yahei'] {
+  font-family: var(--font-stack-yahei);
+}

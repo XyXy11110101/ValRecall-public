@@ -1,0 +1,146 @@
+.capture-workspace-shell {
+  --editor-actions-clearance: min(20rem, 45dvh);
+}
+
+.capture-workspace-shell[data-has-capture='true'] .companion-hero {
+  min-height: 4rem;
+  max-height: none;
+  grid-template-columns: minmax(0, 1fr) 4rem;
+}
+
+.capture-workspace-shell[data-has-capture='true'] .companion-hero-copy {
+  padding: 0.375rem 0.5rem 0.375rem 0;
+}
+
+.capture-workspace-shell[data-has-capture='true'] .companion-hero-meta {
+  display: none;
+}
+
+.capture-workspace-shell[data-has-capture='true'] .companion-hero-image {
+  height: 4rem;
+}
+
+/* Builds without the art: the words alone, with no room held for a picture. */
+.capture-workspace-shell .companion-hero:has(.companion-hero-no-art) {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.companion-hero-no-art {
+  display: none;
+}
+
+/* Switch surfaces come from the shared segmented style; Capture only stretches them. */
+.capture-workspace-shell .capture-pane-nav {
+  display: flex;
+  width: 100%;
+}
+
+.capture-workspace-shell .capture-question-mode {
+  display: flex;
+}
+
+.capture-workspace-shell .capture-pane-nav > button {
+  flex: 1;
+}
+
+.capture-workspace-shell .capture-cue {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.capture-workspace-shell .capture-screenshot {
+  width: 100%;
+  max-height: 4rem;
+  object-fit: contain;
+  border-radius: 0.625rem;
+}
+
+.capture-workspace-shell [hidden] {
+  display: none !important;
+}
+
+.capture-workspace-shell .capture-question-mode button,
+.capture-workspace-shell .capture-more-options summary {
+  min-height: 44px;
+}
+
+.capture-more-options summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+/* A flex summary loses the browser's triangle; this one says it opens, like the others do. */
+.capture-more-options summary::before {
+  flex: none;
+  content: '';
+  border-block: 0.3rem solid transparent;
+  border-inline-start: 0.5rem solid currentColor;
+}
+.capture-more-options[open] summary::before {
+  rotate: 90deg;
+}
+
+.capture-more-options > div {
+  padding-top: 0.75rem;
+}
+
+.capture-question-preview h3,
+.capture-preview-answer p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+
+.capture-question-preview h3 {
+  font-size: var(--text-title);
+  font-weight: 500;
+  -webkit-text-stroke: 0;
+}
+
+.capture-save-bar {
+  max-height: var(--editor-actions-clearance);
+  overflow-y: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  padding: 0.75rem 0 max(0.75rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--canvas);
+}
+
+.capture-save-bar > .primary-action {
+  width: 100%;
+  min-height: 52px;
+}
+
+.capture-save-bar .notice {
+  max-height: min(8rem, 25vh);
+  overflow: auto;
+}
+
+.capture-secondary-actions {
+  justify-content: space-between;
+  gap: 0.375rem;
+}
+
+.capture-secondary-actions .button {
+  min-height: 44px;
+  padding-inline: 0.625rem;
+  font-size: var(--text-small);
+}
+
+.capture-reward-confirmation {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.capture-result-actions > .button {
+  flex: 1 1 8em;
+}

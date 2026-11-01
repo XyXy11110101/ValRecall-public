@@ -1,0 +1,46 @@
+{
+  "name": "valrecall",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A local-first Microsoft Edge extension for capturing and reviewing video learning moments.",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build.mjs",
+    "build:mobile": "node scripts/build-mobile.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "qrcode-generator": "2.0.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "ts-fsrs": "^5.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/chrome": "^0.1.2",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.32.0",
+    "fake-indexeddb": "^6.0.1",
+    "globals": "^16.3.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
+    "vite": "^6.1.0",
+    "vitest": "^3.2.4"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "^20.19 || ^22.13 || >=24"
+  }
+}

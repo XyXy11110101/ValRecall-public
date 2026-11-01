@@ -1,0 +1,343 @@
+.library-view {
+  container-name: library-workspace;
+  container-type: inline-size;
+  --editor-actions-clearance: min(20rem, 45dvh);
+}
+
+.library-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.library-view .library-learning-workspace {
+  grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+  gap: 1.25rem;
+}
+
+.library-view .library-directory,
+.library-view .library-detail {
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--surface-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-surface);
+}
+
+/* Reading or editing one item is the working surface; the directory stays flat. */
+.library-view .library-detail {
+  box-shadow: var(--shadow-raised);
+}
+/* Side by side, not stacked: a card's usual margin would only push its top below the directory's. */
+.library-view .library-learning-workspace > .library-detail {
+  margin-top: 0;
+}
+/* Nothing sits above this message, so its usual rule would float at the top of the card. */
+.library-view .library-detail > .empty-state {
+  padding-block: 0;
+  border-top: 0;
+}
+
+.library-view .library-directory {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100dvh - 7rem);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+.library-directory-content {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.library-view .library-scope-header {
+  min-height: 0;
+  gap: 0.5rem;
+  padding-bottom: 0.7rem;
+}
+
+.library-view .library-scope-header h2 {
+  font-size: calc(1.15rem * var(--font-scale));
+}
+
+.library-view .library-scope-header .eyebrow,
+.library-view .category-sidebar-heading {
+  display: none;
+}
+
+.library-view .category-sidebar {
+  position: static;
+  display: flex;
+  max-height: 18rem;
+  padding-top: 0.75rem;
+  overflow: auto;
+}
+
+.library-view .category-desktop-navigation {
+  display: grid;
+}
+
+.library-view .category-mobile-picker {
+  display: none;
+}
+
+.library-view .category-navigation {
+  max-height: none;
+}
+
+.library-query,
+.library-filter-disclosure {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.library-view .library-toolbar {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding-block: 0.75rem 0;
+}
+
+.library-view .library-toolbar > .field:first-child {
+  grid-column: auto;
+}
+
+.library-view .library-toolbar label {
+  font-size: var(--text-small);
+}
+
+.library-view .library-toolbar .sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+.library-view .library-toolbar-status {
+  justify-content: flex-start;
+}
+
+.library-view .library-results {
+  min-height: 6rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.library-view .library-directory-row {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+}
+
+.library-directory-item {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 1rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.library-directory-item:hover {
+  background: #f5f6f8;
+}
+
+.library-directory-item:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.library-view .is-selected .library-directory-item {
+  border-color: transparent;
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.library-directory-item .library-item-summary {
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.library-directory-question {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--muted);
+  font-size: var(--text-small);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.library-detail-heading > div {
+  min-width: 0;
+}
+
+.library-detail-heading h3 {
+  margin: 0.2rem 0 0;
+  font-size: calc(1.4rem * var(--font-scale));
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.library-detail-heading h3:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.library-view .library-reading {
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* Buttons share one top edge even when a caption hangs under one of them. */
+.library-view .library-detail-actions {
+  align-items: flex-start;
+  padding-block: 0.25rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.library-view .library-reading p {
+  max-width: 42em;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.library-view .library-reading h4 {
+  margin-top: 1.5rem;
+}
+
+.library-item-management {
+  margin-top: 1.5rem;
+}
+
+.library-item-management .cluster,
+.library-editor-options > .field-grid {
+  margin-top: 0.8rem;
+}
+
+.library-detail-editor {
+  margin-top: 1rem;
+}
+
+.library-editor-actions {
+  max-height: var(--editor-actions-clearance);
+  overflow-y: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 0.9rem 0;
+  background: var(--surface-card);
+}
+
+.library-editor-actions .button:first-child {
+  min-height: 3.25rem;
+  min-width: 9rem;
+}
+
+.library-view .source-group-summary {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.library-view .source-group {
+  padding: 0.75rem 0;
+}
+
+.library-view .source-group-items {
+  padding-inline: 0;
+}
+
+.library-view .source-group-copy {
+  overflow-wrap: anywhere;
+}
+
+.library-view .source-group .library-title,
+.library-view .platform-group-heading h3 {
+  font-size: var(--text-body);
+}
+
+.library-pane-switch,
+.library-return-directory {
+  display: none;
+}
+
+@container library-workspace (width < 52em) {
+  .library-view .library-learning-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .library-pane-switch {
+    display: flex;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .library-return-directory {
+    display: inline-flex;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .library-view .library-directory {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .library-view .library-results {
+    max-height: 65dvh;
+  }
+
+  .library-learning-workspace[data-pane='directory'] > .library-detail,
+  .library-learning-workspace[data-pane='content'] > .library-directory {
+    display: none;
+  }
+}
+
+@container library-workspace (width < 24em) {
+  .library-view .library-directory,
+  .library-view .library-detail {
+    padding: 0.85rem;
+  }
+
+  .library-view .library-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.library-filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.library-filter-summary:empty {
+  display: none;
+}
+
+.library-detail-editor h3:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}

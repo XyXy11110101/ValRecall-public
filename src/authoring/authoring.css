@@ -1,0 +1,153 @@
+.reading-capture.manual-question-form {
+  max-width: none;
+  width: 100%;
+}
+.manual-source-picker {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.manual-source-picker legend {
+  padding: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+/* Source choices read as chips; the selected state comes from the shared pressed style. */
+.manual-source-picker .button.secondary {
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+.manual-editor-grid {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.manual-source-panel,
+.manual-question-panel {
+  min-width: 0;
+}
+.manual-question-panel {
+  max-width: 48rem;
+}
+.manual-image-preview {
+  display: block;
+  width: 100%;
+  max-height: 32rem;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+.manual-question-form .reading-guides {
+  padding-block: 0 1rem;
+  border-top: 0;
+}
+
+.manual-question-form {
+  container: manual / inline-size;
+  --editor-actions-clearance: min(20rem, 45dvh);
+}
+.manual-editor-grid {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 1.25rem;
+}
+.manual-materials,
+.manual-question-panel {
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-surface);
+  background: var(--surface-card);
+}
+/* The question being written is the working surface; materials stay flat beside it. */
+.manual-question-panel {
+  max-width: none;
+  box-shadow: var(--shadow-raised);
+}
+.manual-pane-heading {
+  margin: 0;
+  font-size: var(--text-title);
+  font-weight: 600;
+}
+/* With the pane switch on screen, its 来源材料 already names this pane. The heading stays for focus
+   and screen readers (the same rules as .sr-only), and shows again when the two panes sit side by
+   side further down. */
+.manual-materials > .manual-pane-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.manual-pane-switch,
+.manual-question-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.manual-pane-switch {
+  justify-content: start;
+}
+.manual-editor-grid[data-pane='source'] .manual-question-panel,
+.manual-editor-grid[data-pane='question'] .manual-materials {
+  display: none;
+}
+.manual-save-area {
+  max-height: var(--editor-actions-clearance);
+  overflow-y: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  border-top: 1px solid var(--line);
+  /* The primary button's raised edge and shadow hang below it: this region scrolls, so it clips. */
+  padding-block: 1rem 0.75rem;
+  background: var(--surface-card);
+}
+.manual-save-area .form-actions {
+  margin: 0;
+}
+.manual-save-area .primary-action {
+  flex: 1 1 12rem;
+}
+.manual-preview {
+  min-height: 16rem;
+}
+.manual-preview .reading-question {
+  font-size: calc(clamp(1.25rem, 3cqw, 1.75rem) * var(--font-scale));
+  font-weight: 500;
+  line-height: 1.6;
+  -webkit-text-stroke: 0;
+}
+.manual-question-toolbar,
+.manual-pane-heading {
+  scroll-margin-block: 1rem;
+}
+@container manual (min-width: 52em) {
+  .manual-question-form:not(.manual-reading-only) .manual-editor-grid {
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+    align-items: start;
+  }
+  .manual-question-form:not(.manual-reading-only) .manual-editor-grid[data-pane] .manual-materials,
+  .manual-question-form:not(.manual-reading-only)
+    .manual-editor-grid[data-pane]
+    .manual-question-panel {
+    display: grid;
+  }
+  .manual-question-form:not(.manual-reading-only) .manual-pane-switch,
+  .manual-question-form:not(.manual-reading-only) .manual-continue {
+    display: none;
+  }
+  .manual-question-form:not(.manual-reading-only) .manual-materials > .manual-pane-heading {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
