@@ -8,7 +8,7 @@ describe('captureErrorText', () => {
   it.each(CODES)('tells the user what to do next for %s', (code) => {
     const text = captureErrorText(code);
     expect(text).toMatch(/[一-鿿]/u);
-    expect(text).toMatch(/再试一次|再重启|重启浏览器/u);
+    expect(text).toMatch(/再试一次|再按捕获快捷键|再重启|重启浏览器/u);
   });
 
   it('names what cannot be captured', () => {

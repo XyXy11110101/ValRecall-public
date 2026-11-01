@@ -425,7 +425,15 @@ export function ManualQuestionForm({
             手动出题 +{receipt.manualReward} 零花钱
           </p>
         )}
-        {receipt.warning && <Notice tone="warning">{receipt.warning}</Notice>}
+        {/* A flag && child would leave a false in the private children, so both editions fold here. */}
+        {__VALRECALL_PUBLIC_RELEASE__ ? (
+          <>
+            {error && <Notice tone="error">{error}</Notice>}
+            {receipt.warning && <Notice tone="warning">{receipt.warning}</Notice>}
+          </>
+        ) : (
+          receipt.warning && <Notice tone="warning">{receipt.warning}</Notice>
+        )}
         <div className="cluster">
           <button className="button" onClick={() => reset(false)}>
             继续记录

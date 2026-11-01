@@ -73,6 +73,42 @@ describe('MAIN-world subtitle bridge', () => {
     );
   });
 
+  it.each(['zh-Hans', 'zh-Hant', 'en', 'ja'])(
+    'matches the video on a Bilibili page under /%s/',
+    async (language) => {
+      document.body.innerHTML = '<video></video>';
+      prepareVideo(document.querySelector('video')!, 10, 120);
+      (globalThis as unknown as Record<string, unknown>).__INITIAL_STATE__ = {
+        videoData: {
+          bvid: 'BV1PrefixFixture',
+          cid: 101,
+          pages: [{ page: 1, cid: 101 }],
+          subtitle: {
+            list: [
+              {
+                id: 'uploaded-zh',
+                lan: 'zh-CN',
+                lan_doc: '中文（UP主上传）',
+                is_default: true,
+                body: [{ from: 9, to: 11, content: 'Uploaded current' }],
+              },
+            ],
+          },
+        },
+      };
+
+      const result = await collect(
+        'bilibili',
+        `https://www.bilibili.com/${language}/video/BV1PrefixFixture`,
+      );
+
+      expect(result.bilibiliIdentity).toMatchObject({ bvid: 'BV1PrefixFixture', matched: true });
+      expect(result.tracks.flatMap((track) => track.cues).map((cue) => cue.text)).toContain(
+        'Uploaded current',
+      );
+    },
+  );
+
   it('reads bounded Bilibili uploaded and AI subtitle cues from known player metadata', async () => {
     document.body.innerHTML = '<video></video>';
     prepareVideo(document.querySelector('video')!, 10, 120);

@@ -38,6 +38,33 @@ export async function dismissCaptureById(
   }
 }
 
+/**
+ * Public edition, after a delete-all: removes what a capture that was still running, or an editor
+ * still open, wrote behind it. Every capture draft goes, as no capture survives a delete-all.
+ */
+export async function clearPendingCaptureRecords(database: DatabaseOpener): Promise<void> {
+  const tx = (await database.open()).transaction(
+    [STORE_NAMES.meta, STORE_NAMES.drafts],
+    'readwrite',
+  );
+  const done = transactionComplete(tx);
+  try {
+    tx.objectStore(STORE_NAMES.meta).delete('runtime.pendingCapture');
+    const drafts = tx.objectStore(STORE_NAMES.drafts);
+    const keys = await requestResult(drafts.index('by-scope').getAllKeys('capture'));
+    for (const key of keys) drafts.delete(key);
+    await done;
+  } catch (error) {
+    try {
+      tx.abort();
+    } catch {
+      /* Already closed. */
+    }
+    await done.catch(() => undefined);
+    throw error;
+  }
+}
+
 function transactionSourceCleanup(tx: IDBTransaction, draftId: string) {
   tx.objectStore(STORE_NAMES.drafts).delete('capture-source:' + draftId);
 }

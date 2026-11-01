@@ -76,6 +76,13 @@ export async function consumeDraft(transaction: IDBTransaction, token?: DraftTok
   store.delete(token.id);
 }
 
+let draftWritesStopped = false;
+
+/** Public edition: this page is going away after a delete-all and must not write anything back. */
+export function setDraftWritesStopped(stopped: boolean): void {
+  draftWritesStopped = stopped;
+}
+
 export class DraftRepository {
   constructor(
     private readonly database: DraftDatabase = new DatabaseConnection(indexedDB, DATABASE_NAME),
@@ -96,6 +103,8 @@ export class DraftRepository {
     input: Omit<LocalDraft, 'schemaVersion' | 'revision' | 'updatedAt'>,
     expectedRevision: number,
   ): Promise<LocalDraft> {
+    if (__VALRECALL_PUBLIC_RELEASE__ && draftWritesStopped)
+      throw new DatabaseError('CONFLICT', '学习内容已删除，这份草稿不再保存。');
     const next = readDraft({
       ...input,
       schemaVersion: 1,

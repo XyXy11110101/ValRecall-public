@@ -1,5 +1,7 @@
-const BILIBILI_VIDEO_PATH = /^\/video\/(BV[A-Za-z0-9]+|av\d+)\/?$/i;
-const BILIBILI_WATCH_LATER_PATH = /^\/list\/watchlater\/?$/i;
+// Bilibili sends some visitors to /zh-Hans/video/…, so a language segment may come first.
+// Only these four: the manifest grants access to the same list and no other first segment.
+const BILIBILI_VIDEO_PATH = /^\/(?:(?:zh-Hans|zh-Hant|en|ja)\/)?video\/(BV[A-Za-z0-9]+|av\d+)\/?$/i;
+const BILIBILI_WATCH_LATER_PATH = /^\/(?:(?:zh-Hans|zh-Hant|en|ja)\/)?list\/watchlater\/?$/i;
 
 export interface BilibiliVideoUrl {
   videoId: string;

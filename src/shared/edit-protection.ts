@@ -45,8 +45,33 @@ function needsPreparing(state: EditState): boolean {
   return (state.dirty || state.autosaving === true) && state.prepareLeave !== undefined;
 }
 
+/** Public edition: how long a leave waits for a write, about eight seconds in all. */
+export const LEAVE_WAIT_STEP_MS = 50;
+export const LEAVE_WAIT_STEPS = 160;
+let latestLeave = 0;
+
+/**
+ * Public edition: holds a leave until no editor is writing, so it continues by itself.
+ * False means a newer leave took over. True at the limit too: the next check then shows the
+ * existing message. A read while writing counts for nothing, and it takes two clear reads because
+ * a write's pending ref clears before React renders what it changed, such as a form no longer dirty.
+ */
+async function waitForPendingWrites(leave: number): Promise<boolean> {
+  const writing = () => [...editors].some((read) => read().busy);
+  if (!writing()) return true;
+  let clearReads = 0;
+  for (let step = 0; step < LEAVE_WAIT_STEPS && clearReads < 2; step += 1) {
+    await new Promise((resolve) => window.setTimeout(resolve, LEAVE_WAIT_STEP_MS));
+    if (leave !== latestLeave) return false;
+    clearReads = writing() ? 0 : clearReads + 1;
+  }
+  return true;
+}
+
 /** Keep mounted input until its exact latest draft has reached durable storage. */
 export async function requestEditorLeaveAsync(): Promise<boolean> {
+  const leave = __VALRECALL_PUBLIC_RELEASE__ ? ++latestLeave : 0;
+  if (__VALRECALL_PUBLIC_RELEASE__ && !(await waitForPendingWrites(leave))) return false;
   const snapshots = [...editors].map((read) => ({ read, state: read() }));
   if (snapshots.some(({ state }) => state.busy)) return requestEditorLeave();
   const prepared = new Map<() => EditState, unknown>();
@@ -63,6 +88,7 @@ export async function requestEditorLeaveAsync(): Promise<boolean> {
     }
     prepared.set(read, state.draftVersion);
   }
+  if (__VALRECALL_PUBLIC_RELEASE__ && !(await waitForPendingWrites(leave))) return false;
   // A user may continue typing or another editor may mount during the write.
   for (const [read, version] of prepared) {
     if (!editors.has(read) || read().draftVersion !== version) {

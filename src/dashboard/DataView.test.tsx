@@ -8,6 +8,10 @@ vi.mock('./services', () => ({
   repository: { exportData: vi.fn(), importData: vi.fn(), clearAllData: vi.fn() },
 }));
 vi.mock('../intake/LegacyNotesArchive', () => ({ LegacyNotesArchive: () => null }));
+vi.mock('../edition/pending-capture-clear', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../edition/pending-capture-clear')>()),
+  reloadDataPageAfterDelete: vi.fn(),
+}));
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 describe('DataView operations', () => {

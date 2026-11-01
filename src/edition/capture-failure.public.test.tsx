@@ -66,11 +66,11 @@ describe('capture failure in the side panel', () => {
       /重试/u.test(entry.textContent ?? ''),
     );
 
-  async function render() {
+  async function render(initialPending = failure) {
     await act(async () =>
       root.render(
         <SidePanelApp
-          initialPending={failure}
+          initialPending={initialPending}
           initialLoadingCapture={false}
           loadDueCount={async () => 0}
           loadCategories={async () => []}
@@ -114,6 +114,17 @@ describe('capture failure in the side panel', () => {
     await act(async () => retryButton()!.click());
     expect(sendMessage).toHaveBeenCalledWith(RETRY_MESSAGE);
     expect(retryButton()!.disabled).toBe(false);
+  });
+
+  it('offers no retry on an unsupported page, where it could never work', async () => {
+    vi.stubGlobal('__VALRECALL_PUBLIC_RELEASE__', true);
+    await render({
+      ok: false,
+      error: { code: 'UNSUPPORTED_PAGE', message: RAW_MESSAGE },
+    });
+    expect(container.textContent).toContain(captureErrorText('UNSUPPORTED_PAGE'));
+    expect(container.textContent).toContain('再按捕获快捷键');
+    expect(retryButton()).toBeUndefined();
   });
 
   it('says so when the retry could not run', async () => {

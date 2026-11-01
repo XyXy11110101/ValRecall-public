@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import type { CaptureDraft } from '../models/learning-item';
+import { localDateKey } from '../models/daily-task';
 import { MESSAGE_PROTOCOL_VERSION, MESSAGE_TYPES } from '../models/messages';
 import {
   ALLOWANCE_STORAGE_KEY,
@@ -138,7 +139,7 @@ describe('side-panel reading integration', () => {
     const save = vi.fn(saveReading);
     stored[ALLOWANCE_STORAGE_KEY] = applyCaptureReward(
       DEFAULT_ALLOWANCE,
-      '2026-10-01',
+      localDateKey(new Date()),
       new Date().toISOString(),
     ).state;
     await render({ saveReadingCapture: save });

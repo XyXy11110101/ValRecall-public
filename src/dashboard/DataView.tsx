@@ -1,8 +1,16 @@
 import { clearWorkingCard } from '../shared/working-card-store';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import { Notice } from '../shared/components';
-import { MESSAGE_PROTOCOL_VERSION, MESSAGE_TYPES } from '../models/messages';
+import { setDraftWritesStopped } from '../database/drafts';
+import {
+  clearDeleteNotice,
+  PENDING_CAPTURE_NOT_CLEARED,
+  readDeleteNotice,
+  reloadDataPageAfterDelete,
+  requestPendingCaptureClear,
+  type DeleteNotice,
+} from '../edition/pending-capture-clear';
 import { displayError, downloadJson, hasExtensionRuntime } from '../shared/extension';
 import { repository } from './services';
 import { useOperation } from '../shared/use-operation';
@@ -46,7 +54,8 @@ export function DataView({
   const [notice, setNotice] = useState<{
     text: string;
     tone: 'success' | 'warning' | 'error';
-  } | null>(null);
+  } | null>(readDeleteNotice);
+  useEffect(() => clearDeleteNotice(), []);
 
   async function exportData() {
     if (!operation.begin()) return;
@@ -121,23 +130,20 @@ export function DataView({
     }
     if (!operation.begin()) return;
     try {
+      setDraftWritesStopped(true);
       await repository.clearAllData();
       const cardCleared = await clearedWorkingCard();
-      if (hasExtensionRuntime()) {
-        await chrome.runtime
-          .sendMessage({
-            type: MESSAGE_TYPES.dismissCapture,
-            version: MESSAGE_PROTOCOL_VERSION,
-          })
-          .catch(() => undefined);
-      }
-      setNotice({
-        text: `${deleteAllCopy(rewardsOn).done}${cardCleared ? '' : WORKING_CARD_NOT_CLEARED}`,
-        tone: cardCleared ? 'success' : 'warning',
-      });
+      const captureCleared = !hasExtensionRuntime() || (await requestPendingCaptureClear());
+      const deleted: DeleteNotice = {
+        text: `${deleteAllCopy(rewardsOn).done}${cardCleared ? '' : WORKING_CARD_NOT_CLEARED}${captureCleared ? '' : PENDING_CAPTURE_NOT_CLEARED}`,
+        tone: cardCleared && captureCleared ? 'success' : 'warning',
+      };
+      setNotice(deleted);
       onChanged();
       setArchiveRevision((value) => value + 1);
+      reloadDataPageAfterDelete(deleted);
     } catch (error) {
+      setDraftWritesStopped(false);
       setNotice({ text: displayError(error, '本地数据无法删除。'), tone: 'error' });
     } finally {
       operation.finish();

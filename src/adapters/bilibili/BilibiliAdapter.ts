@@ -844,8 +844,9 @@ export class BilibiliAdapter implements VideoPlatformAdapter {
       };
     }
 
-    const maxAttempts = clampInteger(options.maxAttempts ?? 8, 1, 20);
-    const retryDelayMs = clampInteger(options.retryDelayMs ?? 250, 0, 2_000);
+    // A new tab can reload onto /zh-Hans/… before its player exists, so about 10 seconds in all.
+    const maxAttempts = clampInteger(options.maxAttempts ?? 20, 1, 20);
+    const retryDelayMs = clampInteger(options.retryDelayMs ?? 500, 0, 2_000);
     const pauseAfterSeek = options.pauseAfterSeek ?? true;
     const wait =
       options.wait ??

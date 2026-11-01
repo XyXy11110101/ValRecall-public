@@ -939,28 +939,32 @@ export function SidePanelApp({
               <section className="card stack motion-state-change">
                 <h2>{pending.error.code === 'UNSUPPORTED_PAGE' ? '不支持的页面' : '捕获失败'}</h2>
                 <Notice tone="error">{captureErrorText(pending.error.code)}</Notice>
-                <div className="cluster capture-result-actions">
-                  <button
-                    type="button"
-                    className="button primary-action"
-                    disabled={loadingCapture}
-                    onClick={() => {
-                      setMessage(null);
-                      setLoadingCapture(true);
-                      void requestCaptureRetry().then((finished) => {
-                        setLoadingCapture(false);
-                        if (!finished) {
-                          setMessage({
-                            text: '重试没有成功。请回到视频页，按捕获快捷键。',
-                            tone: 'error',
-                          });
-                        }
-                      });
-                    }}
-                  >
-                    {loadingCapture ? '正在重试…' : '重试'}
-                  </button>
-                </div>
+                {/* Edge only lets the tab that got the shortcut be captured, so a retry from an
+                    unsupported page can never succeed on the video tab. */}
+                {pending.error.code !== 'UNSUPPORTED_PAGE' && (
+                  <div className="cluster capture-result-actions">
+                    <button
+                      type="button"
+                      className="button primary-action"
+                      disabled={loadingCapture}
+                      onClick={() => {
+                        setMessage(null);
+                        setLoadingCapture(true);
+                        void requestCaptureRetry().then((finished) => {
+                          setLoadingCapture(false);
+                          if (!finished) {
+                            setMessage({
+                              text: '重试没有成功。请回到视频页，按捕获快捷键。',
+                              tone: 'error',
+                            });
+                          }
+                        });
+                      }}
+                    >
+                      {loadingCapture ? '正在重试…' : '重试'}
+                    </button>
+                  </div>
+                )}
               </section>
             ) : (
               <section className="card motion-state-change">

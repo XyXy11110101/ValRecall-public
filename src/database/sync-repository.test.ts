@@ -9,10 +9,13 @@ import { STORE_NAMES, runMigrations } from './migrations';
 import { requestResult, transactionComplete } from './idb';
 import { applyCaptureReward, DEFAULT_ALLOWANCE } from '../shared/allowance';
 import type { SyncOperation, SyncSnapshot } from '../sync/contracts';
+import { computerTimeZone } from '../sync/protocol';
 import { seedHistoricalTask } from '../testing/historical-task';
 
-const now = new Date('2026-10-13T12:00:00.000Z');
-const timeZone = 'Europe/London';
+// Noon on the computer's own calendar, and the computer's own zone, as the sync service reports it.
+// The desktop paths pick "today" from local time, so a fixed UTC instant is a different day far from UTC.
+const now = new Date(2026, 9, 13, 12);
+const timeZone = computerTimeZone();
 const repos: ValRecallRepository[] = [];
 function fixture(legacy: unknown = undefined) {
   const factory = new IDBFactory();
@@ -291,7 +294,7 @@ describe('durable cross-device operations', () => {
     expect(
       (
         await test.sync.applyOperations(snapshot.epoch, 'phone-one', [
-          { ...operation, at: '2026-10-13T13:00:00.000Z' },
+          { ...operation, at: new Date(2026, 9, 13, 13).toISOString() },
         ])
       )[0]?.status,
     ).toBe('conflict');
@@ -311,7 +314,7 @@ describe('durable cross-device operations', () => {
     const snapshot = await test.sync.getSnapshot(timeZone);
     const late = new SyncRepository(test.repository, {
       legacyLoader: test.legacyLoader,
-      clock: () => new Date('2026-10-15T12:00:00.000Z'),
+      clock: () => new Date(2026, 9, 15, 12),
     });
     expect(
       (await late.applyOperations(snapshot.epoch, 'phone', [completion(snapshot)]))[0],
@@ -363,7 +366,7 @@ describe('durable cross-device operations', () => {
       'task-one',
       '2026-10-13',
       false,
-      new Date('2026-10-15T12:00:00.000Z'),
+      new Date(2026, 9, 15, 12),
     );
     expect(undo.reward?.state.balance).toBe(0);
     const refreshed = await test.sync.getSnapshot(timeZone);

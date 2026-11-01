@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { startTypography } from '../ui/typography';
 import { DashboardApp } from './DashboardApp';
 import { requestPersistentStorageOnce } from '../edition/data-safety';
+import { reloadWhenDataDeleted } from '../edition/pending-capture-clear';
 import '../styles/global.css';
 
 const root = document.getElementById('root');
@@ -11,6 +12,9 @@ if (!root) throw new Error('ValRecall dashboard root was not found.');
 
 if (__VALRECALL_PUBLIC_RELEASE__) void requestPersistentStorageOnce();
 if (__VALRECALL_PUBLIC_RELEASE__) void import('../edition/rewards-boot');
+if (__VALRECALL_PUBLIC_RELEASE__ && typeof chrome !== 'undefined' && chrome.runtime?.id) {
+  reloadWhenDataDeleted(chrome);
+}
 
 void startTypography().then(() => {
   createRoot(root).render(

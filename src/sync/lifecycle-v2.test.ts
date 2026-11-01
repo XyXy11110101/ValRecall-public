@@ -12,6 +12,7 @@ import { STORE_NAMES } from '../database/migrations';
 import { SYNC_SEQUENCE_KEY } from '../database/wallet';
 import { requestResult, transactionComplete } from '../database/idb';
 import { SyncClient } from '../mobile/sync-client';
+import { computerTimeZone } from './protocol';
 import { DesktopSyncService } from './service';
 import type { SyncOperation, SyncRequest } from './contracts';
 
@@ -20,9 +21,11 @@ afterEach(() => {
   for (const db of connections.splice(0)) db.close();
 });
 async function fixture() {
-  let time = new Date('2026-10-16T12:00:00.000Z');
+  // Noon on the computer's own calendar in the computer's own zone, as the sync service reports it,
+  // so the dates below hold in every zone. The test about a zone change sets its own.
+  let time = new Date(2026, 9, 16, 12);
   let lose = false;
-  let zone = 'Europe/London';
+  let zone = computerTimeZone();
   const desktop = new ValRecallRepository({
     indexedDBFactory: new IDBFactory(),
     databaseName: 'v2-desktop',
@@ -92,6 +95,8 @@ async function fixture() {
 describe('v2 lifecycle and ordering integration', () => {
   it('preserves offline day keys across midnight, DST fallback and a later computer-zone change', async () => {
     const f = await fixture();
+    f.setZone('Europe/London');
+    await f.client.sync();
     f.setTime('2026-10-24T22:59:00Z');
     const task = await f.create();
     await f.mobile.enqueueCompletion(task.id);
@@ -128,12 +133,7 @@ describe('v2 lifecycle and ordering integration', () => {
     });
     await f.desktop.updateTask(task.id, { scheduledDate: '2026-10-16' });
     await expect(
-      f.domain.changeTaskCompletionAtomic(
-        task.id,
-        '2026-10-16',
-        true,
-        new Date('2026-10-16T12:00:00Z'),
-      ),
+      f.domain.changeTaskCompletionAtomic(task.id, '2026-10-16', true, new Date(2026, 9, 16, 12)),
     ).rejects.toThrow('历史结算');
     expect((await f.domain.wallet.load()).balance).toBe(10);
   });
@@ -169,7 +169,7 @@ describe('v2 lifecycle and ordering integration', () => {
       task.id,
       '2026-10-16',
       true,
-      new Date('2026-10-16T12:00:00Z'),
+      new Date(2026, 9, 16, 12),
     );
     expect((await f.domain.wallet.load()).balance).toBe(10);
     expect(await f.desktop.listTaskCompletions()).toHaveLength(1);
@@ -264,7 +264,7 @@ describe('v2 lifecycle and ordering integration', () => {
       task.id,
       '2026-10-16',
       true,
-      new Date('2026-10-16T12:01:00Z'),
+      new Date(2026, 9, 16, 12, 1),
     );
     await f.client.sync();
     expect((await f.mobile.load()).outbox[0]?.status).toBe('conflict');

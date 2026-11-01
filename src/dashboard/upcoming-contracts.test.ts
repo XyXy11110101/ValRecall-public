@@ -67,8 +67,20 @@ describe('A21 bounded/read-only architecture contracts', () => {
     ]);
     expect(manifest.host_permissions).toEqual([
       'https://www.bilibili.com/video/*',
+      'https://www.bilibili.com/zh-Hans/video/*',
+      'https://www.bilibili.com/zh-Hant/video/*',
+      'https://www.bilibili.com/en/video/*',
+      'https://www.bilibili.com/ja/video/*',
       'https://bilibili.com/video/*',
+      'https://bilibili.com/zh-Hans/video/*',
+      'https://bilibili.com/zh-Hant/video/*',
+      'https://bilibili.com/en/video/*',
+      'https://bilibili.com/ja/video/*',
       'https://www.bilibili.com/list/watchlater*',
+      'https://www.bilibili.com/zh-Hans/list/watchlater*',
+      'https://www.bilibili.com/zh-Hant/list/watchlater*',
+      'https://www.bilibili.com/en/list/watchlater*',
+      'https://www.bilibili.com/ja/list/watchlater*',
       'https://www.youtube.com/watch*',
       'https://www.douyin.com/video/*',
     ]);

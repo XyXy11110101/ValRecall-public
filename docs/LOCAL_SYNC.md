@@ -32,17 +32,23 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
    .\scripts\build-sync-helper.ps1
    ```
 
+   如果手机同步正开着（助手在运行），端口被占用，测试会失败，提示里有 `real init status`。先在设置里关闭手机同步，或者关闭 Edge，再构建。
+
 2. 安装助手：
 
    ```powershell
    .\scripts\install-sync-helper.ps1 -ExtensionId 'mboaajohmmgoghaedmnjemhhbncjhcgd'
    ```
 
-这一步只给当前 Windows 用户注册助手，不会自动打开同步，也不改防火墙。想先看看它会做什么，可以加 `-WhatIf`。
+这一步只给当前 Windows 用户注册助手，不会自动打开同步，也不改防火墙。想先看看它会做什么，可以加 `-WhatIf`。助手运行时，加了 `-WhatIf` 也一样会报错，要先关掉。
 
 ## 打开同步
 
 打开 ValRecall 的「设置」，展开「手机同步（可选）」，按页面提示启用，然后用手机扫二维码配对。二维码 5 分钟内有效，只能用一次。
+
+手机配对成功后，电脑页面应该会自动显示“已配对手机”。如果二维码已过期或页面没有变化，点“刷新同步状态”。这个自动更新只用模拟的助手测过，还没用真手机测过。
+
+第一次启用时，Windows 可能弹出防火墙提示。确认是可信的家庭网络后，选允许。
 
 同步时，电脑要开着 Edge。不用打开 ValRecall 页面。手机离线时可以先记下操作，下次连上时再同步。
 
@@ -50,6 +56,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 - 确认手机和电脑在同一个 Wi-Fi 上。有些路由器会挡住设备发现，这时可以重新配对：先在设置里点“解除手机配对”，再生成二维码扫码。如果路由器开了“设备隔离”，要先关掉它，或者换一个网络。
 - 如果防火墙挡住了连接：先确认当前是可信的家庭网络。然后在设置里关闭手机同步，或者关闭 Edge，因为助手运行时安装命令会报错。再用管理员窗口运行安装命令，并加上 `-AllowPrivateLanFirewall`。它只放行助手程序、专用网络和本地子网。完成后重新打开同步。不要关闭防火墙。
+- 如果当时没有选允许，Windows 可能已经记下阻止规则，名字是 `valrecall.synchost.exe`。阻止规则优先，只加上面的放行规则不够。要先在“高级安全 Windows Defender 防火墙”的“入站规则”里删掉这条阻止规则。
 
 助手使用 TCP 和 UDP 端口 19284。
 

@@ -1,4 +1,8 @@
-import { dismissCaptureById, preservePendingCapture } from '../database/pending-capture';
+import {
+  clearPendingCaptureRecords,
+  dismissCaptureById,
+  preservePendingCapture,
+} from '../database/pending-capture';
 import type { CaptureDraft } from '../models/learning-item';
 import type { ExtractionDiagnostic } from '../models/extraction';
 import { isPageSubtitleSnapshot, type PageSubtitleSnapshot } from '../models/page-subtitles';
@@ -42,6 +46,7 @@ import {
 } from './source-url';
 import { openDashboardOnInstall } from '../edition/open-on-install';
 import { registerCaptureRetry } from '../edition/capture-retry';
+import { registerPendingCaptureClear } from '../edition/pending-capture-clear';
 
 type PendingCaptureResponse = CapturePageResponse;
 
@@ -68,6 +73,7 @@ const dailyPlanService = new DailyPlanService(
   }),
 );
 let pendingCapture: PendingCaptureResponse | null = null;
+let pendingCaptureClears = 0;
 
 registerBackgroundRoutes(createChromeBackgroundRoutePort(chrome), {
   openDashboard,
@@ -75,6 +81,13 @@ registerBackgroundRoutes(createChromeBackgroundRoutePort(chrome), {
 });
 if (__VALRECALL_PUBLIC_RELEASE__) openDashboardOnInstall(chrome);
 if (__VALRECALL_PUBLIC_RELEASE__) registerCaptureRetry(chrome, () => startCapture());
+if (__VALRECALL_PUBLIC_RELEASE__) {
+  registerPendingCaptureClear(chrome, () => {
+    pendingCaptureClears += 1;
+    pendingCapture = null;
+    return clearPendingCaptureRecords(repository);
+  });
+}
 registerReminderRuntime(chrome, {
   service: reminderService,
   dailyPlanService,
@@ -167,6 +180,7 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
 });
 
 export async function startCapture(tab?: chrome.tabs.Tab): Promise<void> {
+  const clearsAtStart = pendingCaptureClears;
   const activeTab = tab?.id ? tab : await findActiveTab();
   if (!activeTab?.id || !activeTab.windowId) {
     await publishError('CAPTURE_FAILED', '找不到当前标签页，请重试。');
@@ -220,6 +234,8 @@ export async function startCapture(tab?: chrome.tabs.Tab): Promise<void> {
       return;
     }
 
+    // A capture still running when the data was deleted must not bring its screenshot back.
+    if (clearsAtStart !== pendingCaptureClears) return;
     await setPendingCapture({ ok: true, draft });
   } catch (error) {
     await publishError('CAPTURE_FAILED', errorMessage(error, '无法捕获这个页面，请重试。'));

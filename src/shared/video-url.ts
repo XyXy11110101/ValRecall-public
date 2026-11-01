@@ -135,10 +135,12 @@ export function buildSourceOpenUrl(
   timestampSeconds: number | null,
 ): string {
   if (!isSupportedVideoUrl(sourceUrl, platform)) return sourceUrl;
-  if (platform !== 'youtube' || timestampSeconds === null) return sourceUrl;
+  if (platform === 'douyin' || timestampSeconds === null) return sourceUrl;
 
   const parsed = new URL(sourceUrl);
-  parsed.searchParams.set('t', `${Math.max(0, Math.floor(timestampSeconds))}s`);
+  const seconds = Math.max(0, Math.floor(timestampSeconds));
+  // Bilibili can reload a new tab onto /zh-Hans/…, which loses a seek made before the reload.
+  parsed.searchParams.set('t', platform === 'youtube' ? `${seconds}s` : `${seconds}`);
   return parsed.href;
 }
 
@@ -209,8 +211,20 @@ export function getSourceTabPatterns(platform: VideoPlatform): string[] {
     case 'bilibili':
       return [
         'https://www.bilibili.com/video/*',
+        'https://www.bilibili.com/zh-Hans/video/*',
+        'https://www.bilibili.com/zh-Hant/video/*',
+        'https://www.bilibili.com/en/video/*',
+        'https://www.bilibili.com/ja/video/*',
         'https://bilibili.com/video/*',
+        'https://bilibili.com/zh-Hans/video/*',
+        'https://bilibili.com/zh-Hant/video/*',
+        'https://bilibili.com/en/video/*',
+        'https://bilibili.com/ja/video/*',
         'https://www.bilibili.com/list/watchlater*',
+        'https://www.bilibili.com/zh-Hans/list/watchlater*',
+        'https://www.bilibili.com/zh-Hant/list/watchlater*',
+        'https://www.bilibili.com/en/list/watchlater*',
+        'https://www.bilibili.com/ja/list/watchlater*',
       ];
   }
 }

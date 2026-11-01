@@ -12,6 +12,7 @@ import { SyncRepository } from '../database/sync-repository';
 import { SyncClient } from '../mobile/sync-client';
 import { DEFAULT_ALLOWANCE } from '../shared/allowance';
 import type { SyncRequest, SyncResponse } from './contracts';
+import { computerTimeZone } from './protocol';
 import { DesktopSyncService } from './service';
 import { seedHistoricalTask } from '../testing/historical-task';
 
@@ -25,12 +26,18 @@ function wire<T>(value: T): T {
   return JSON.parse(new TextDecoder().decode(new TextEncoder().encode(JSON.stringify(value)))) as T;
 }
 
-async function fixture(start = '2026-10-13T12:00:00.000Z', initialBalance = 0) {
+/** Noon on the computer's own calendar, so the dates below hold in every zone. */
+function localNoon(date: string): string {
+  return new Date(`${date}T12:00:00`).toISOString();
+}
+
+async function fixture(start = localNoon('2026-10-13'), initialBalance = 0) {
   // Each device has its own factory; neither can accidentally see the other's database.
   const desktopFactory = new IDBFactory();
   const mobileFactory = new IDBFactory();
   let now = new Date(start);
-  let timeZone = 'Europe/London';
+  // The service reports the computer's own zone, which is also the zone the desktop paths use.
+  let timeZone = computerTimeZone();
   let sequence = 0;
   let loseNextPushReply = false;
   const pushes: Extract<SyncRequest, { type: 'push' }>[] = [];
@@ -145,7 +152,7 @@ async function fixture(start = '2026-10-13T12:00:00.000Z', initialBalance = 0) {
 
 describe('synthetic desktop-to-phone domain integration', () => {
   it('commits offline spending exactly once even when its reply is lost and both sides restart', async () => {
-    const test = await fixture('2026-10-13T12:00:00.000Z', 20);
+    const test = await fixture(localNoon('2026-10-13'), 20);
     await test.client.sync();
     const spend = await test.mobile.enqueueSpend(7, '午后零食');
     expect((await test.mobile.load()).snapshot?.wallet.balance).toBe(20);
@@ -166,7 +173,7 @@ describe('synthetic desktop-to-phone domain integration', () => {
   });
 
   it('preserves insufficient-balance conflicts and does not debit later after new earnings', async () => {
-    const test = await fixture('2026-10-13T12:00:00.000Z', 10);
+    const test = await fixture(localNoon('2026-10-13'), 10);
     await test.client.sync();
     const spend = await test.mobile.enqueueSpend(8);
     await test.domain.wallet.update((state) => ({
@@ -185,7 +192,7 @@ describe('synthetic desktop-to-phone domain integration', () => {
   });
 
   it('creates offline and earns exactly once for each saved day after a delayed connection', async () => {
-    const test = await fixture('2026-10-10T12:00:00.000Z', 37);
+    const test = await fixture(localNoon('2026-10-10'), 37);
     await test.client.sync();
     const created = await test.mobile.createTask({
       title: '读一章书 📚 / Read one chapter',
@@ -195,7 +202,7 @@ describe('synthetic desktop-to-phone domain integration', () => {
     if (created.operation.kind !== 'create-task') throw new Error('Expected synthetic creation');
     const taskId = created.operation.task.id;
     for (const day of ['10', '11', '12']) {
-      test.setTime(`2026-10-${day}T12:00:00.000Z`);
+      test.setTime(localNoon(`2026-10-${day}`));
       await test.mobile.enqueueCompletion(taskId);
     }
     const offline = await test.mobile.load();
@@ -204,7 +211,7 @@ describe('synthetic desktop-to-phone domain integration', () => {
     expect(mobileVisibleTasks(offline)[0]?.task).toEqual(created.operation.task);
     expect(await test.desktop.listTasks()).toEqual([]);
 
-    test.setTime('2026-10-15T12:00:00.000Z');
+    test.setTime(localNoon('2026-10-15'));
     const synced = await test.client.sync();
     expect(synced).toMatchObject({ pushed: 4, remaining: 0, conflicts: 0 });
     expect(synced.state.outbox).toEqual([]);

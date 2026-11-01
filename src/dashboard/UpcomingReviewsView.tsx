@@ -1,5 +1,6 @@
 import { sourceLabel } from '../shared/source-labels';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { loadUpcomingPages } from '../edition/upcoming-refresh';
 
 import type {
   LearningItem,
@@ -81,9 +82,75 @@ export function UpcomingReviewsView({
   } | null>(null);
   const requestSequenceRef = useRef(0);
   const loadedRef = useRef(false);
+  const bucketsTouchedRef = useRef(false);
+  const tickRefreshRef = __VALRECALL_PUBLIC_RELEASE__
+    ? useRef<{ scope: readonly unknown[]; failureText: string | null; tickReading: boolean }>({
+        scope: [],
+        failureText: null,
+        tickReading: false,
+      })
+    : null;
   const rangeBefore = rangeEnd(queryAfter, range);
 
   useEffect(() => {
+    if (__VALRECALL_PUBLIC_RELEASE__ && tickRefreshRef) {
+      // Public edition: only the clock moved, so refresh in place. The notice, the open group and
+      // the loaded rows stay. Anything else is a real change and resets below.
+      const state = tickRefreshRef.current;
+      const scope = [range, revision, loadUpcoming, loadDueCount, reminderStatusLoader];
+      const onlyTimeMoved =
+        loadedRef.current && scope.every((value, index) => value === state.scope[index]);
+      state.scope = scope;
+      if (onlyTimeMoved) {
+        // The next tick refreshes instead, so a running "load more" is not thrown away.
+        if (loadingMore) return;
+        const sequence = ++requestSequenceRef.current;
+        state.tickReading = true;
+        const after = new Date(now);
+        const before = rangeEnd(after, range);
+        void Promise.all([
+          loadUpcomingPages(
+            loadUpcoming,
+            { after, ...(before ? { before } : {}) },
+            UPCOMING_PAGE_SIZE,
+            items.length,
+          ),
+          loadDueCount(after),
+          reminderStatusLoader(),
+        ])
+          .then(([page, currentDueCount, status]) => {
+            if (requestSequenceRef.current !== sequence) return;
+            setItems(page.items);
+            setCursor(page.nextCursor);
+            setHasMore(page.hasMore);
+            setInvalidCount(page.invalidCount);
+            setDueCount(currentDueCount);
+            setReminderStatus(status);
+            setQueryAfter(after);
+            const failureText = state.failureText;
+            state.failureText = null;
+            if (failureText !== null) {
+              setNotice((current) => (current?.text === failureText ? null : current));
+            }
+          })
+          .catch((error: unknown) => {
+            if (requestSequenceRef.current !== sequence) return;
+            const text = displayError(error, '即将到期的复习无法加载。');
+            state.failureText = text;
+            setNotice((current) => current ?? { tone: 'error', text });
+          })
+          .finally(() => {
+            if (requestSequenceRef.current !== sequence) return;
+            state.tickReading = false;
+            setLoading(false);
+            setRefreshing(false);
+          });
+        return;
+      }
+      state.failureText = null;
+      state.tickReading = false;
+      setLoadingMore(false);
+    }
     const sequence = ++requestSequenceRef.current;
     const after = new Date(now);
     const before = rangeEnd(after, range);
@@ -118,6 +185,9 @@ export function UpcomingReviewsView({
           tone: 'error',
           text: displayError(error, '即将到期的复习无法加载。'),
         });
+        if (__VALRECALL_PUBLIC_RELEASE__ && tickRefreshRef) {
+          tickRefreshRef.current.failureText = displayError(error, '即将到期的复习无法加载。');
+        }
       })
       .finally(() => {
         if (requestSequenceRef.current !== sequence) return;
@@ -136,18 +206,27 @@ export function UpcomingReviewsView({
   const totalFuture = items.length;
 
   useEffect(() => {
-    if (openBuckets.size > 0 || totalFuture === 0) return;
+    if (bucketsTouchedRef.current || openBuckets.size > 0 || totalFuture === 0) return;
     const defaults = new Set<ReviewDateBucket>();
     const today = visibleBuckets.find((bucket) => bucket.key === 'today');
     const tomorrow = visibleBuckets.find((bucket) => bucket.key === 'tomorrow');
     if (today && today.itemCount > 0) defaults.add('today');
     if (totalFuture <= 12 && tomorrow && tomorrow.itemCount > 0) defaults.add('tomorrow');
-    setOpenBuckets(defaults);
+    if (defaults.size > 0) setOpenBuckets(defaults);
   }, [openBuckets.size, totalFuture, visibleBuckets]);
 
   async function loadMore() {
     if (!cursor || loadingMore || !hasMore) return;
     setLoadingMore(true);
+    // A tick no longer clears notices, so a retry has to clear its own earlier failure.
+    if (__VALRECALL_PUBLIC_RELEASE__) setNotice(null);
+    // A tick still reading has only the rows from before this load, so it gives way to it.
+    if (__VALRECALL_PUBLIC_RELEASE__ && tickRefreshRef?.current.tickReading) {
+      tickRefreshRef.current.tickReading = false;
+      requestSequenceRef.current += 1;
+      setLoading(false);
+      setRefreshing(false);
+    }
     const sequence = requestSequenceRef.current;
     try {
       const page = await loadUpcoming({
@@ -162,6 +241,7 @@ export function UpcomingReviewsView({
       setHasMore(page.hasMore);
       setInvalidCount((current) => current + page.invalidCount);
     } catch (error) {
+      if (requestSequenceRef.current !== sequence) return;
       setNotice({
         tone: 'error',
         text: displayError(error, '无法加载更多即将到期的复习。'),
@@ -193,6 +273,7 @@ export function UpcomingReviewsView({
 
   function changeRange(next: UpcomingRange) {
     if (next === range) return;
+    bucketsTouchedRef.current = false;
     setOpenBuckets(new Set());
     setRange(next);
   }
@@ -282,14 +363,15 @@ export function UpcomingReviewsView({
                       className="upcoming-bucket-button motion-press"
                       aria-expanded={open}
                       aria-controls={`upcoming-bucket-${bucket.key}`}
-                      onClick={() =>
+                      onClick={() => {
+                        bucketsTouchedRef.current = true;
                         setOpenBuckets((current) => {
                           const next = new Set(current);
                           if (next.has(bucket.key)) next.delete(bucket.key);
                           else next.add(bucket.key);
                           return next;
-                        })
-                      }
+                        });
+                      }}
                     >
                       <span>{bucket.label}</span>
                       <span>

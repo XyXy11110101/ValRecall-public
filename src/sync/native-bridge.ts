@@ -161,8 +161,13 @@ export class NativeSyncController {
           } else {
             this.retries = 3;
             await this.ensureConnection();
+            if (command === 'pair') {
+              const fresh = await this.request('status', {});
+              if (isNativeHostStatus(fresh)) this.status = fresh;
+            }
             if (command === 'pair' && this.status?.paired) {
-              throw new Error('请先解除原有手机配对，再连接新手机。');
+              this.connectionError = '请先解除原有手机配对，再连接新手机。';
+              throw new Error(this.connectionError);
             }
             const type =
               command === 'pair'

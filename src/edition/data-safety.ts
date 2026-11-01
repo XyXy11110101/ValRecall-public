@@ -78,7 +78,7 @@ export function deleteAllCopy(rewardsOn: boolean) {
   return {
     title: '删除学习内容',
     panel: `会永久删除回忆题、截图、草稿、分类、待办和笔记。${stays}${pairing}要全部删除，只能卸载扩展。`,
-    confirm: `删除回忆题、截图、草稿、分类、待办和笔记？${stays}${pairing}要全部删除，只能卸载扩展。没有备份就无法恢复。`,
+    confirm: `删除回忆题、截图、草稿、分类、待办和笔记？${stays}${pairing}要全部删除，只能卸载扩展。没有备份就无法恢复。打开着的 ValRecall 页面会刷新，没保存的文字也会丢掉。`,
     done: '回忆题、截图、草稿、分类、待办和笔记已删除。有些记录还留在这个浏览器里。',
   };
 }

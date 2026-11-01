@@ -12,8 +12,8 @@ jobs:
   check:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -21,6 +21,10 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test:run -- --pool=threads --maxWorkers=4
+      - name: Test again in a time zone far from UTC
+        run: |
+          $env:TZ = 'Pacific/Auckland'
+          npm run test:run -- --pool=threads --maxWorkers=4
       - run: npm run format:check
       - run: npm run build
       - run: npm run build:mobile

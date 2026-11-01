@@ -14,7 +14,8 @@ import type { SyncOperation, SyncRequest } from '../sync/contracts';
 import { readSyncRequest } from '../sync/contracts';
 import { seedHistoricalTask } from '../testing/historical-task';
 
-const now = new Date('2026-10-22T12:00:00Z');
+// Noon on the computer's own calendar: the reward takes its date from local time.
+const now = new Date(2026, 9, 22, 12);
 const values = {
   title: 'Synthetic todo',
   notes: null,

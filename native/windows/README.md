@@ -15,7 +15,8 @@ process/TLS integration test, then publishes a self-contained Windows x64 app to
 The integration test requires an active private IPv4 LAN address. It creates only
 synthetic test credentials under a validated temporary directory and removes that
 directory after shutting down its child process. It does not modify real pairing
-settings, extension data, native-host registrations or firewall rules.
+settings, extension data, native-host registrations or firewall rules. The self-test
+also needs port 19284 free, so turn off phone sync first.
 
 The build script supports `-DotnetPath` for an existing SDK and `-SkipTests` for
 offline packaging after testing. SDK CLI telemetry and automatic development

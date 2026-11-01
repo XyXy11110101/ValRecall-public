@@ -90,6 +90,59 @@ describe('validated page subtitle snapshots', () => {
     );
   });
 
+  it.each(['zh-Hans', 'zh-Hant', 'en', 'ja'])(
+    'keeps the subtitles on a Bilibili page under /%s/',
+    (language) => {
+      const bilibiliHref = `https://www.bilibili.com/${language}/video/BV1PrefixFixture?p=1`;
+      const result = extractSubtitleContextFromPageSnapshot(
+        bilibiliSnapshot(bilibiliHref, {
+          bilibiliIdentity: {
+            bvid: 'BV1PrefixFixture',
+            aid: null,
+            cid: '123456',
+            part: 1,
+            matched: true,
+          },
+          video: { currentTime: 123, duration: 180, currentSrc: null },
+          tracks: [
+            track({
+              id: 'sole-ai-zh',
+              language: 'zh-CN',
+              automatic: true,
+              cues: cueWindowAt('Prefix track', 123),
+            }),
+          ],
+        }),
+        { platform: 'bilibili', href: bilibiliHref, video: createVideo(), timestampSeconds: 123 },
+      );
+
+      expect(result.context?.subtitleCurrent).toEqual(['Prefix track current']);
+    },
+  );
+
+  it('refuses the subtitles when the prefixed page is a different video', () => {
+    const bilibiliHref = 'https://www.bilibili.com/zh-Hans/video/BV1PrefixFixture?p=1';
+    const result = extractSubtitleContextFromPageSnapshot(
+      bilibiliSnapshot(bilibiliHref, {
+        bilibiliIdentity: {
+          bvid: 'BV1OtherFixture',
+          aid: null,
+          cid: '123456',
+          part: 1,
+          matched: true,
+        },
+        video: { currentTime: 123, duration: 180, currentSrc: null },
+        tracks: [track({ id: 'sole-ai-zh', cues: cueWindowAt('Other video', 123) })],
+      }),
+      { platform: 'bilibili', href: bilibiliHref, video: createVideo(), timestampSeconds: 123 },
+    );
+
+    expect(result.context).toBeNull();
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({ strategy: 'bilibili-active-video-identity', status: 'failed' }),
+    );
+  });
+
   it('uses the sole valid Bilibili bridge track without cross-platform selection flags', () => {
     const bilibiliHref = 'https://www.bilibili.com/video/BV1SoleFixture?p=1';
     const video = createVideo();

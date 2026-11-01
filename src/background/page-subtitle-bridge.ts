@@ -1107,7 +1107,9 @@ export async function collectMainWorldSubtitleSnapshot(requestValue: unknown): P
       try {
         const url = new URL(href);
         if (url.hostname !== 'www.bilibili.com' && url.hostname !== 'bilibili.com') return null;
-        const pathMatch = url.pathname.match(/^\/video\/(BV[A-Za-z0-9]+|av\d+)(?:\/|$)/iu);
+        const pathMatch = url.pathname.match(
+          /^\/(?:(?:zh-Hans|zh-Hant|en|ja)\/)?video\/(BV[A-Za-z0-9]+|av\d+)(?:\/|$)/iu,
+        );
         const bvidFromQuery = url.searchParams.get('bvid');
         const aidFromQueryValue = url.searchParams.get('aid');
         const aidFromQuery = aidFromQueryValue

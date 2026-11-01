@@ -78,6 +78,37 @@ export function SyncSettings({
     return () => clearTimeout(timer);
   }, [pairing, expiresAt]);
 
+  // Depends on expiresAt and not on the pairing object, because each status gives a new object.
+  const waitingForPhone = state.connected && expiresAt > 0 && !expired && !state.status?.paired;
+  useEffect(() => {
+    if (!waitingForPhone) return;
+    // One code lasts 5 minutes, which is 100 rounds of 3 seconds.
+    let rounds = 100;
+    let asking = false;
+    const timer = setInterval(() => {
+      rounds -= 1;
+      if (rounds <= 0) clearInterval(timer);
+      if (pending.current || asking) return;
+      asking = true;
+      const request = ++requestVersion.current;
+      void driver('status')
+        .then((response) => {
+          if (!active.current || request !== requestVersion.current || !response.ok) return;
+          // The bridge drops its diagnostic report on status, and this refresh was not asked for.
+          setState((current) =>
+            current.diagnostics
+              ? { ...response.state, diagnostics: current.diagnostics }
+              : response.state,
+          );
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          asking = false;
+        });
+    }, 3_000);
+    return () => clearInterval(timer);
+  }, [driver, expiresAt, waitingForPhone]);
+
   const qr = useMemo(() => {
     if (!pairing || expired || !selectedAddress) return null;
     try {
@@ -248,7 +279,9 @@ export function SyncSettings({
                 在 ValRecall Android 中扫描。有效期至 {new Date(expiresAt).toLocaleTimeString()}
                 ；请勿分享此二维码。
               </p>
-              <p className="muted small">手机完成配对后，点击“刷新同步状态”查看结果。</p>
+              <p className="muted small">
+                手机完成配对后，这里会自动更新。没有变化就点“刷新同步状态”。
+              </p>
               <details onToggle={(event) => setShowPairText(event.currentTarget.open)}>
                 <summary>无法扫描？查看一次性配对码</summary>
                 {showPairText && (

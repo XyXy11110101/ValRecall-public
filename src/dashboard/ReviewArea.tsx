@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import { requestEditorLeave } from '../shared/edit-protection';
+import { requestEditorLeave, requestEditorLeaveAsync } from '../shared/edit-protection';
 
 import type { LearningItem } from '../database';
 import type { ValRecallPreferences } from '../shared/preferences';
@@ -48,6 +48,20 @@ export function ReviewArea({
 
   function changeSection(next: ReviewSection) {
     if (next === section) return;
+    if (__VALRECALL_PUBLIC_RELEASE__) {
+      // A tab pressed just after a rating waits for that rating's write.
+      void requestEditorLeaveAsync().then((allowed) => {
+        if (!allowed) return;
+        focusPendingRef.current = true;
+        safeViewTransition(
+          () => {
+            flushSync(() => onSectionChange(next));
+          },
+          { reducedMotion },
+        );
+      });
+      return;
+    }
     if (!requestEditorLeave()) return;
     focusPendingRef.current = true;
     safeViewTransition(

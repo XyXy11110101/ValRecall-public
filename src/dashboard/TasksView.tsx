@@ -126,6 +126,8 @@ export function TasksView({
     : false;
   const [section, setSection] = useState<TasksSection>('today');
   const [tasks, setTasks] = useState<DailyTask[]>([]);
+  const latestTasks = __VALRECALL_PUBLIC_RELEASE__ ? useRef(tasks) : null;
+  if (__VALRECALL_PUBLIC_RELEASE__ && latestTasks) latestTasks.current = tasks;
   const [completions, setCompletions] = useState<TaskCompletion[]>([]);
   const [items, setItems] = useState<LearningItem[]>([]);
   const [summary, setSummary] = useState<TaskDaySummary>(emptySummary(today));
@@ -373,6 +375,16 @@ export function TasksView({
 
   async function openEditor(next: NonNullable<typeof editor>) {
     if (!(await requestEditorLeaveAsync())) return;
+    if (__VALRECALL_PUBLIC_RELEASE__ && next.mode === 'edit' && latestTasks) {
+      // The leave may have waited for a save, so the row that was clicked can be out of date.
+      const id = next.task.id;
+      const task = latestTasks.current.find((candidate) => candidate.id === id);
+      if (!task) {
+        showNotice('这条待办已不存在。', 'warning');
+        return;
+      }
+      next = { mode: 'edit', task };
+    }
     creationId.current = crypto.randomUUID();
     setEditor(next);
     setEditorVersion((version) => version + 1);

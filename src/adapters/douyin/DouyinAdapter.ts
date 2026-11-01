@@ -874,8 +874,8 @@ export class DouyinAdapter implements VideoPlatformAdapter {
       };
     }
 
-    const maxAttempts = clampInteger(options.maxAttempts ?? 3, 1, 10);
-    const retryDelayMs = clampInteger(options.retryDelayMs ?? 250, 0, 5_000);
+    const maxAttempts = clampInteger(options.maxAttempts ?? 10, 1, 10);
+    const retryDelayMs = clampInteger(options.retryDelayMs ?? 1_000, 0, 5_000);
     const pauseAfterSeek = options.pauseAfterSeek ?? true;
     const wait = options.wait ?? delay;
     const diagnostics: ExtractionDiagnostic[] = [];

@@ -109,6 +109,18 @@ describe('standard YouTube source URLs', () => {
     expect(opened.searchParams.get('t')).toBe('42s');
   });
 
+  it('keeps the Bilibili part and adds whole seconds, so a reload onto /zh-Hans/ keeps the time', () => {
+    const opened = new URL(
+      buildSourceOpenUrl('https://www.bilibili.com/video/BV1abc123?p=2', 'bilibili', 42.9),
+    );
+
+    expect(opened.searchParams.get('p')).toBe('2');
+    expect(opened.searchParams.get('t')).toBe('42');
+    expect(
+      matchesSavedSource(opened.href, 'https://www.bilibili.com/video/BV1abc123?p=2', 'bilibili'),
+    ).toBe(true);
+  });
+
   it('leaves a validated source unchanged when no timestamp seek was requested', () => {
     const source = `${base}&list=PL123&index=4`;
 
@@ -130,8 +142,20 @@ describe('standard YouTube source URLs', () => {
     expect(getSourceTabPatterns('youtube')).toEqual(['https://www.youtube.com/watch*']);
     expect(getSourceTabPatterns('bilibili')).toEqual([
       'https://www.bilibili.com/video/*',
+      'https://www.bilibili.com/zh-Hans/video/*',
+      'https://www.bilibili.com/zh-Hant/video/*',
+      'https://www.bilibili.com/en/video/*',
+      'https://www.bilibili.com/ja/video/*',
       'https://bilibili.com/video/*',
+      'https://bilibili.com/zh-Hans/video/*',
+      'https://bilibili.com/zh-Hant/video/*',
+      'https://bilibili.com/en/video/*',
+      'https://bilibili.com/ja/video/*',
       'https://www.bilibili.com/list/watchlater*',
+      'https://www.bilibili.com/zh-Hans/list/watchlater*',
+      'https://www.bilibili.com/zh-Hant/list/watchlater*',
+      'https://www.bilibili.com/en/list/watchlater*',
+      'https://www.bilibili.com/ja/list/watchlater*',
     ]);
     expect(getSourceTabPatterns('douyin')).toEqual(['https://www.douyin.com/video/*']);
   });

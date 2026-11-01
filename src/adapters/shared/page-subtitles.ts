@@ -713,7 +713,9 @@ function bilibiliIdentityMatchesContext(snapshot: PageSubtitleSnapshot, href: st
   if (!identity?.matched) return false;
   try {
     const url = new URL(href);
-    const pathIdentity = url.pathname.match(/^\/video\/(BV[A-Za-z0-9]+|av\d+)(?:\/|$)/iu)?.[1];
+    const pathIdentity = url.pathname.match(
+      /^\/(?:(?:zh-Hans|zh-Hant|en|ja)\/)?video\/(BV[A-Za-z0-9]+|av\d+)(?:\/|$)/iu,
+    )?.[1];
     const queryBvid = url.searchParams.get('bvid');
     const queryAidValue = url.searchParams.get('aid');
     const queryAid = queryAidValue

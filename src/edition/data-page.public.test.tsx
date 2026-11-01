@@ -5,10 +5,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DataView } from '../dashboard/DataView';
 import { repository } from '../dashboard/services';
 import { downloadJson } from '../shared/extension';
+import { setDraftWritesStopped } from '../database/drafts';
+import { reloadDataPageAfterDelete } from './pending-capture-clear';
 import { REWARDS_STORAGE_KEY, startRewards } from './rewards';
 
 // Only in the public repository: it checks lines the export rewrites in the data page.
 vi.hoisted(() => Object.assign(globalThis, { __VALRECALL_PUBLIC_RELEASE__: true }));
+
+vi.mock('./pending-capture-clear', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./pending-capture-clear')>()),
+  reloadDataPageAfterDelete: vi.fn(),
+}));
+vi.mock('../database/drafts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../database/drafts')>()),
+  setDraftWritesStopped: vi.fn(),
+}));
 
 vi.mock('../dashboard/services', () => ({
   repository: { exportData: vi.fn(), importData: vi.fn(), clearAllData: vi.fn() },
@@ -81,6 +92,9 @@ describe('data page results, public edition', () => {
     vi.mocked(repository.exportData).mockResolvedValue({} as never);
     vi.mocked(repository.clearAllData).mockResolvedValue(undefined);
     vi.mocked(downloadJson).mockReset();
+    vi.mocked(reloadDataPageAfterDelete).mockReset();
+    vi.mocked(setDraftWritesStopped).mockReset();
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -129,5 +143,120 @@ describe('data page results, public edition', () => {
       '回忆题、截图、草稿、分类、待办和笔记已删除。有些记录还留在这个浏览器里。',
     );
     expect(notice).not.toContain('全部');
+  });
+
+  describe('what this tab still holds in memory', () => {
+    it('stops draft writes before deleting, then reloads with the result', async () => {
+      const order: string[] = [];
+      vi.mocked(setDraftWritesStopped).mockImplementation(() => order.push('stop') as never);
+      vi.mocked(repository.clearAllData).mockImplementation(async () => {
+        order.push('database');
+      });
+      vi.mocked(reloadDataPageAfterDelete).mockImplementation(() => order.push('reload') as never);
+      await render(false);
+      vi.stubGlobal('chrome', {
+        ...chrome,
+        storage: {
+          ...chrome.storage,
+          local: { ...chrome.storage.local, remove: vi.fn(async () => undefined) },
+        },
+      });
+      await click('删除学习内容');
+      expect(order).toEqual(['stop', 'database', 'reload']);
+      expect(reloadDataPageAfterDelete).toHaveBeenCalledExactlyOnceWith({
+        text: expect.stringContaining('回忆题、截图、草稿、分类、待办和笔记已删除。'),
+        tone: 'success',
+      });
+    });
+
+    it('stays, and writes again, when the delete failed', async () => {
+      vi.mocked(repository.clearAllData).mockRejectedValue(new Error('读不出来'));
+      await render(false);
+      await click('删除学习内容');
+      expect(reloadDataPageAfterDelete).not.toHaveBeenCalled();
+      expect(vi.mocked(setDraftWritesStopped).mock.calls).toEqual([[true], [false]]);
+    });
+
+    it('does not reload when the person says no', async () => {
+      vi.mocked(window.confirm).mockReturnValue(false);
+      await render(false);
+      await click('删除学习内容');
+      expect(reloadDataPageAfterDelete).not.toHaveBeenCalled();
+      expect(setDraftWritesStopped).not.toHaveBeenCalled();
+    });
+
+    it('shows the held result once after the reload', async () => {
+      sessionStorage.setItem(
+        'valrecall.deleteNotice',
+        JSON.stringify({ text: '已删除，有警告。', tone: 'warning' }),
+      );
+      await render(false);
+      const notice = container.querySelector('.notice');
+      expect(notice?.textContent).toBe('已删除，有警告。');
+      expect(notice?.className).toContain('warning');
+
+      await act(async () => root.unmount());
+      root = createRoot(container);
+      await act(async () =>
+        root.render(<DataView onChanged={() => undefined} onBackToSettings={() => undefined} />),
+      );
+      expect(container.querySelector('.notice')).toBeNull();
+    });
+  });
+
+  describe('the capture still waiting in the service worker', () => {
+    const sendMessage = vi.fn();
+
+    async function deleteWithRuntime() {
+      await render(false);
+      vi.stubGlobal('chrome', {
+        ...chrome,
+        runtime: { id: 'test', sendMessage },
+        storage: {
+          ...chrome.storage,
+          local: { ...chrome.storage.local, remove: vi.fn(async () => undefined) },
+        },
+      });
+      await click('删除学习内容');
+    }
+
+    beforeEach(() => sendMessage.mockReset());
+
+    it('is cleared by a message the service worker accepts, after the database', async () => {
+      const order: string[] = [];
+      vi.mocked(repository.clearAllData).mockImplementation(async () => {
+        order.push('database');
+      });
+      sendMessage.mockImplementation(async () => {
+        order.push('message');
+        return { ok: true };
+      });
+      await deleteWithRuntime();
+      expect(order).toEqual(['database', 'message']);
+      expect(sendMessage).toHaveBeenCalledExactlyOnceWith({
+        type: 'VALRECALL_CLEAR_PENDING_CAPTURE',
+        version: 1,
+      });
+      const notice = container.querySelector('.notice');
+      expect(notice?.textContent).not.toContain('捕获没清除');
+      expect(notice?.className).not.toContain('warning');
+    });
+
+    it.each([
+      ['refuses', async () => ({ ok: false })],
+      ['cannot be reached', () => Promise.reject(new Error('No receiver'))],
+    ])('is reported when the service worker %s', async (_name, answer) => {
+      sendMessage.mockImplementation(answer);
+      await deleteWithRuntime();
+      const notice = container.querySelector('.notice');
+      expect(notice?.textContent).toContain('等待整理的捕获没清除，请再试一次。');
+      expect(notice?.className).toContain('warning');
+    });
+
+    it('is not touched when the database could not be cleared', async () => {
+      vi.mocked(repository.clearAllData).mockRejectedValue(new Error('读不出来'));
+      await deleteWithRuntime();
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
   });
 });
