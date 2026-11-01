@@ -150,7 +150,8 @@ describe('upcoming reviews time tick, public edition', () => {
     expect(container.textContent).toContain('已加载 130 条复习');
     expect(hasRow('row-129-new')).toBe(true);
     expect(loadUpcoming.mock.calls.every(([options]) => options.limit <= 50)).toBe(true);
-  });
+    // The first render of 130 rows takes over a second here and passed five seconds on CI.
+  }, 30_000);
 
   it('can still load the next page after a tick', async () => {
     const loadUpcoming = pagedLoader(manyItems(130));
