@@ -61,7 +61,11 @@ describe('transactional content revision', () => {
     const get = vi.spyOn(IDBObjectStore.prototype, 'get');
     const getAll = vi.spyOn(IDBObjectStore.prototype, 'getAll');
     const put = vi.spyOn(IDBObjectStore.prototype, 'put');
-    const service = new DesktopSyncService(f.sync);
+    const service = new DesktopSyncService(
+      f.sync,
+      () => now.getTime(),
+      () => zone,
+    );
     const getEpoch = vi.spyOn(f.sync, 'getEpoch');
     const getSnapshot = vi.spyOn(f.sync, 'getSnapshot');
     const baseline = await f.state();
