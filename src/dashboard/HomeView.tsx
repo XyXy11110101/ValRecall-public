@@ -65,12 +65,15 @@ import {
 import { useWorkingCard } from './use-working-card';
 import { useWorkingLayoutTransition } from './use-working-layout-transition';
 import {
+  EMPTY_WORKING_PLAN,
   countOpenOneOffs,
   putDownWork,
   resolveWorkingRow,
   saveWorkingNote,
+  saveWorkingPlan,
   startWork,
   workingNoteFor,
+  workingPlanFor,
 } from '../models/working-card';
 import type { HomeTaskOverview } from '../models/task-overview';
 import { freshCompanionMessage, useFreshInstall } from '../edition/fresh-install';
@@ -888,6 +891,9 @@ export function HomeView({
                           note: workingRow
                             ? workingNoteFor(workingCard.state, workingRow, localDate)
                             : '',
+                          plan: workingRow
+                            ? workingPlanFor(workingCard.state, workingRow, localDate)
+                            : EMPTY_WORKING_PLAN,
                           onStart: (row) =>
                             workingCard.update((state) =>
                               startWork(
@@ -904,6 +910,10 @@ export function HomeView({
                           onSaveNote: (row, text) =>
                             workingCard.update((state) =>
                               saveWorkingNote(state, row.task.id, text, localDateKey(clock())),
+                            ),
+                          onSavePlan: (row, plan) =>
+                            workingCard.update((state) =>
+                              saveWorkingPlan(state, row.task.id, plan, localDateKey(clock())),
                             ),
                           onSaveTaskNotes: saveTaskNotes,
                         }

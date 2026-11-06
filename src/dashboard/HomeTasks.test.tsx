@@ -9,6 +9,12 @@ import { TASK_CELEBRATION_MS } from '../shared/task-celebration';
 import { applyTaskCreationReward, DEFAULT_ALLOWANCE } from '../shared/allowance';
 import { requestEditorLeave, requestEditorLeaveAsync } from '../shared/edit-protection';
 import type { DailyTask } from '../database';
+import {
+  EMPTY_WORKING_PLAN,
+  cleanWorkingPlan,
+  isEmptyWorkingPlan,
+  type WorkingPlanFields,
+} from '../models/working-card';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const today = '2026-10-20';
@@ -539,6 +545,7 @@ describe('Home task workspace', () => {
     function harness(tasks: DailyTask[], options: { reducedList?: boolean } = {}) {
       let current: string | null = null;
       const notes = new Map<string, string>();
+      const plans = new Map<string, WorkingPlanFields>();
       let list = tasks;
       let overview = buildHomeTaskOverview(list, [], [], today);
       let celebration: ReturnType<typeof celebrationFor> | null = null;
@@ -578,6 +585,7 @@ describe('Home task workspace', () => {
                 : {
                     row,
                     note: row ? (notes.get(row.task.id) ?? '') : '',
+                    plan: row ? (plans.get(row.task.id) ?? EMPTY_WORKING_PLAN) : EMPTY_WORKING_PLAN,
                     onStart: async (next) => {
                       current = next.task.id;
                       render();
@@ -590,12 +598,20 @@ describe('Home task workspace', () => {
                       notes.set(next.task.id, text.trim());
                       render();
                     },
+                    onSavePlan,
                     onSaveTaskNotes,
                   }
             }
           />,
         );
       };
+      // Like saveWorkingPlan: cleaned, and an empty plan is removed.
+      const onSavePlan = vi.fn(async (next: { task: DailyTask }, value: WorkingPlanFields) => {
+        const cleaned = cleanWorkingPlan(value);
+        if (isEmptyWorkingPlan(cleaned)) plans.delete(next.task.id);
+        else plans.set(next.task.id, cleaned);
+        render();
+      });
       // Like HomeView: the saved task replaces its row, with a newer version.
       const onSaveTaskNotes = vi.fn(async (taskId: string, value: string | null) => {
         saves += 1;
@@ -613,8 +629,10 @@ describe('Home task workspace', () => {
         onToggle,
         onEdit,
         onSaveTaskNotes,
+        onSavePlan,
         plan,
         notes,
+        plans,
         render: () => act(async () => render()),
         setCurrent: (id: string | null) => {
           current = id;
@@ -1107,9 +1125,11 @@ describe('Home task workspace', () => {
             working={{
               row: rowOf(task('a')),
               note: '',
+              plan: EMPTY_WORKING_PLAN,
               onStart: vi.fn(),
               onPutDown: vi.fn(),
               onSaveNote: vi.fn(),
+              onSavePlan: vi.fn(),
               onSaveTaskNotes: vi.fn(),
             }}
           />,
@@ -1187,9 +1207,11 @@ describe('Home task workspace', () => {
             working={{
               row: rowOf(task('a')),
               note: '',
+              plan: EMPTY_WORKING_PLAN,
               onStart: vi.fn(),
               onPutDown: vi.fn(),
               onSaveNote: vi.fn(),
+              onSavePlan: vi.fn(),
               onSaveTaskNotes: vi.fn(),
             }}
           />,
@@ -1223,9 +1245,11 @@ describe('Home task workspace', () => {
             working={{
               row: null,
               note: '',
+              plan: EMPTY_WORKING_PLAN,
               onStart: vi.fn().mockRejectedValue(new Error('quota')),
               onPutDown: vi.fn(),
               onSaveNote: vi.fn(),
+              onSavePlan: vi.fn(),
               onSaveTaskNotes: vi.fn(),
             }}
           />,
@@ -1419,9 +1443,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote,
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: vi.fn(),
               }}
             />,
@@ -1491,9 +1517,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote,
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: vi.fn(),
               }}
             />,
@@ -1526,9 +1554,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote,
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: vi.fn(),
               }}
             />,
@@ -1576,9 +1606,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote,
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: vi.fn(),
               }}
             />,
@@ -1612,9 +1644,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote,
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: vi.fn(),
               }}
             />,
@@ -1683,9 +1717,11 @@ describe('Home task workspace', () => {
                 working={{
                   row: rowOf(task('a')),
                   note,
+                  plan: EMPTY_WORKING_PLAN,
                   onStart: vi.fn(),
                   onPutDown: vi.fn(),
                   onSaveNote,
+                  onSavePlan: vi.fn(),
                   onSaveTaskNotes: vi.fn(),
                 }}
               />,
@@ -1704,6 +1740,101 @@ describe('Home task workspace', () => {
         expect(onSaveNote).toHaveBeenLastCalledWith(rowOf(task('a')), '第一段，又打了几个字');
         expect(nextInput()).toBeNull();
         expect(document.activeElement).not.toBe(nextLine());
+      });
+
+      it('a next step that could not be saved ends with its card, and an undo does not reopen it', async () => {
+        const a = task('a');
+        const onSaveNote = vi.fn().mockRejectedValue(new Error('quota'));
+        const renderWith = (overview: ReturnType<typeof buildHomeTaskOverview>) =>
+          act(async () =>
+            root.render(
+              <HomeTasks
+                overview={overview}
+                unavailable={false}
+                busy={false}
+                writer={{ createTask: vi.fn() }}
+                onToggle={vi.fn()}
+                onCreated={noop}
+                onEdit={noop}
+                onManage={noop}
+                working={{
+                  row: overview.today.find((row) => row.task.id === 'a') ?? null,
+                  note: '',
+                  plan: EMPTY_WORKING_PLAN,
+                  onStart: vi.fn(),
+                  onPutDown: vi.fn(),
+                  onSaveNote,
+                  onSavePlan: vi.fn(),
+                  onSaveTaskNotes: vi.fn(),
+                }}
+              />,
+            ),
+          );
+        await renderWith(buildHomeTaskOverview([a], [], [], today));
+        await act(async () => nextLine()!.click());
+        await typeNext('写小标题');
+        await keyOnNext('Enter');
+        expect(container.textContent).toContain('下一步没保存，请重试。');
+        await renderWith(buildHomeTaskOverview([a], [doneOn('a')], [], today));
+        expect(card()).toBeNull();
+        expect(container.textContent).not.toContain('下一步没保存，请重试。');
+
+        const heading = container.querySelector<HTMLElement>('#home-tasks-heading')!;
+        await act(async () => heading.focus());
+        await renderWith(buildHomeTaskOverview([a], [], [], today));
+        expect(card()?.querySelector('[data-task-id="a"]')).not.toBeNull();
+        expect(nextInput()).toBeNull();
+        expect(nextLine()).not.toBeNull();
+        expect(document.activeElement).toBe(heading);
+        expect(container.textContent).not.toContain('下一步没保存，请重试。');
+        expect(onSaveNote).toHaveBeenCalledOnce();
+      });
+
+      it('a save that fails after Esc, or after its card ended, shows no error', async () => {
+        const [a, b] = [task('a'), task('b')];
+        let fail: (error: Error) => void = () => undefined;
+        const onSaveNote = vi.fn(() => new Promise<void>((_, reject) => (fail = reject)));
+        const renderOn = (id: string) =>
+          act(async () =>
+            root.render(
+              <HomeTasks
+                overview={buildHomeTaskOverview([a, b], [], [], today)}
+                unavailable={false}
+                busy={false}
+                writer={{ createTask: vi.fn() }}
+                onToggle={vi.fn()}
+                onCreated={noop}
+                onEdit={noop}
+                onManage={noop}
+                working={{
+                  row: rowOf(id === 'a' ? a : b),
+                  note: '',
+                  plan: EMPTY_WORKING_PLAN,
+                  onStart: vi.fn(),
+                  onPutDown: vi.fn(),
+                  onSaveNote,
+                  onSavePlan: vi.fn(),
+                  onSaveTaskNotes: vi.fn(),
+                }}
+              />,
+            ),
+          );
+        await renderOn('a');
+        await act(async () => nextLine()!.click());
+        await typeNext('写小标题');
+        await keyOnNext('Enter');
+        await keyOnNext('Escape');
+        expect(nextInput()).toBeNull();
+        await act(async () => fail(new Error('quota')));
+        expect(container.textContent).not.toContain('下一步没保存，请重试。');
+
+        await act(async () => nextLine()!.click());
+        await typeNext('写小标题');
+        await keyOnNext('Enter');
+        // Another page starts b meanwhile.
+        await renderOn('b');
+        await act(async () => fail(new Error('quota')));
+        expect(container.textContent).not.toContain('下一步没保存，请重试。');
       });
 
       it('holds the line back until a press has become its click', async () => {
@@ -1738,6 +1869,712 @@ describe('Home task workspace', () => {
         await writeNext('写小标题');
         await click('先放下 a');
         expect(container.textContent).not.toContain('写小标题');
+      });
+    });
+
+    describe('plan', () => {
+      const filled: WorkingPlanFields = {
+        start: '14:00',
+        end: '15:30',
+        deliverable: '第九章的三条笔记',
+        criteria: '看完第九章，并写下三条笔记',
+      };
+      const planLine = () => container.querySelector<HTMLButtonElement>('.home-working-plan-line');
+      const planBox = () => container.querySelector<HTMLFieldSetElement>('.home-working-plan');
+      const planField = (label: string) => {
+        const field = [...(planBox()?.querySelectorAll('label') ?? [])]
+          .find((entry) => entry.querySelector('span')?.textContent === label)
+          ?.querySelector('input');
+        if (!field) throw new Error(`Missing ${label}`);
+        return field;
+      };
+      const typePlan = (label: string, value: string) =>
+        act(() => {
+          const el = planField(label);
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
+            el,
+            value,
+          );
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      const keyOnPlan = (label: string, key: string, init: KeyboardEventInit = {}) =>
+        act(async () => {
+          planField(label).dispatchEvent(
+            new KeyboardEvent('keydown', { key, bubbles: true, ...init }),
+          );
+        });
+      const planButton = (text: string) =>
+        [...(planBox()?.querySelectorAll('button') ?? [])].find(
+          (entry) => entry.textContent === text,
+        )!;
+      async function fillPlan(plan: WorkingPlanFields) {
+        await typePlan('开始', plan.start);
+        await typePlan('结束', plan.end);
+        await typePlan('交付物', plan.deliverable);
+        await typePlan('完成标准', plan.criteria);
+      }
+      const summary = () =>
+        [...(planLine()?.querySelectorAll('span') ?? [])].map((line) => line.textContent);
+      const planHint = () => container.querySelector('.home-working-plan-hint');
+      /** Focus going to the page itself is checked a moment later, after a window switch. */
+      const afterLeaving = () => act(() => new Promise<void>((done) => setTimeout(done, 0)));
+      /** A time with only its hour typed: the browser gives it no value. */
+      const halfTyped = (label: string) =>
+        Object.defineProperty(planField(label), 'validity', {
+          configurable: true,
+          value: { badInput: true },
+        });
+      const pressOn = (target: Element) => {
+        const down = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
+        target.dispatchEvent(down);
+        return down.defaultPrevented;
+      };
+      /** A key let go on a time: typing or clearing part of one gives no change event. */
+      const keyUpOn = (label: string) =>
+        act(async () => {
+          planField(label).dispatchEvent(new KeyboardEvent('keyup', { key: '1', bubbles: true }));
+        });
+      // Whether this window has focus. A press on the page keeps it, which jsdom only reports while
+      // a field is focused; another window takes it.
+      let pageFocused = true;
+      let hasFocus: { mockRestore(): void } | undefined;
+      beforeEach(() => {
+        pageFocused = true;
+        hasFocus = vi.spyOn(document, 'hasFocus').mockImplementation(() => pageFocused);
+      });
+      afterEach(() => hasFocus?.mockRestore());
+
+      it('opens from one quiet button into a labelled form, and Enter saves it once', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        expect(planLine()?.textContent).toBe('+ 写明时间、交付物和完成标准');
+        // It sits between the row and the next step.
+        const fields = container.querySelector('.home-working-fields')!;
+        expect(fields.firstElementChild).toBe(planLine());
+        await act(async () => planLine()!.click());
+        expect(planLine()).toBeNull();
+        expect(planBox()?.tagName).toBe('FIELDSET');
+        expect(planBox()?.querySelector('legend')?.textContent).toBe('计划');
+        expect(document.activeElement).toBe(planField('开始'));
+        expect(planField('开始').type).toBe('time');
+        expect(planField('结束').type).toBe('time');
+        expect(planField('交付物').placeholder).toBe('例如：第九章的三条笔记');
+        expect(planField('完成标准').placeholder).toBe('例如：看完第九章，并写下三条笔记');
+        expect(planField('交付物').maxLength).toBe(120);
+        expect(planField('完成标准').maxLength).toBe(120);
+        await fillPlan(filled);
+        await keyOnPlan('完成标准', 'Enter');
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+        expect(test.plans.get('a')).toEqual(filled);
+        expect(planBox()).toBeNull();
+        expect(summary()).toEqual([
+          '14:00–15:30',
+          '交付物：第九章的三条笔记',
+          '完成标准：看完第九章，并写下三条笔记',
+        ]);
+        expect(planLine()?.getAttribute('aria-label')).toBe(
+          '修改计划：14:00–15:30，交付物：第九章的三条笔记，完成标准：看完第九章，并写下三条笔记',
+        );
+        expect(document.activeElement).toBe(planLine());
+        // Opening it again starts from what was saved.
+        await act(async () => planLine()!.click());
+        expect(planField('交付物').value).toBe('第九章的三条笔记');
+      });
+
+      it('shows one time on its own, and leaves out empty lines', async () => {
+        const test = harness([task('a'), task('b')]);
+        test.plans.set('a', { ...EMPTY_WORKING_PLAN, start: '14:00', criteria: '写完' });
+        test.plans.set('b', { ...EMPTY_WORKING_PLAN, end: '15:30' });
+        await test.render();
+        await click('开始 a');
+        expect(summary()).toEqual(['14:00 开始', '完成标准：写完']);
+        await click('开始 b');
+        expect(summary()).toEqual(['15:30 前完成']);
+      });
+
+      it('does not submit on the Enter that ends a Chinese composition', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter', { isComposing: true });
+        await keyOnPlan('交付物', 'Enter', { keyCode: 229 });
+        await keyOnPlan('交付物', 'Escape', { isComposing: true });
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(planField('交付物').value).toBe('三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        expect(test.plans.get('a')).toEqual({ ...EMPTY_WORKING_PLAN, deliverable: '三条笔记' });
+      });
+
+      it('Esc and 取消 give back the saved plan and return focus to the summary', async () => {
+        const test = harness([task('a')]);
+        test.plans.set('a', filled);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '别的');
+        await keyOnPlan('交付物', 'Escape');
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(summary()[1]).toBe('交付物：第九章的三条笔记');
+        expect(document.activeElement).toBe(planLine());
+
+        await act(async () => planLine()!.click());
+        await typePlan('完成标准', '别的');
+        await act(async () => planButton('取消').click());
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(summary()[2]).toBe('完成标准：看完第九章，并写下三条笔记');
+        expect(document.activeElement).toBe(planLine());
+      });
+
+      it('保存 saves once, even with focus moving to it first', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('开始', '09:00');
+        // A press on the button moves focus to it, which is still inside the form.
+        await act(async () => planButton('保存').focus());
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        await act(async () => planButton('保存').click());
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+        expect(summary()).toEqual(['09:00 开始']);
+        expect(document.activeElement).toBe(planLine());
+      });
+
+      it('saves once when focus leaves the form, and not while moving inside it', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await act(async () => planField('完成标准').focus());
+        await act(async () => planField('结束').focus());
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        await act(async () => planField('结束').blur());
+        await afterLeaving();
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+        expect(test.plans.get('a')).toEqual({ ...EMPTY_WORKING_PLAN, deliverable: '三条笔记' });
+        expect(planBox()).toBeNull();
+        // Focus left on purpose, so it is not pulled back.
+        expect(document.activeElement).not.toBe(planLine());
+      });
+
+      it('saves at once when focus moves to something outside it', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await act(async () => notesField()!.focus());
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+        expect(planBox()).toBeNull();
+        expect(document.activeElement).toBe(notesField());
+      });
+
+      it('a press on its legend, a caption or a gap keeps focus in it, and does not save', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('开始', '14:00');
+        const caption = [...planBox()!.querySelectorAll('label span')].find(
+          (entry) => entry.textContent === '交付物',
+        )!;
+        expect(pressOn(planBox()!.querySelector('legend')!)).toBe(true);
+        expect(pressOn(caption)).toBe(true);
+        expect(pressOn(planHint()!)).toBe(true);
+        expect(pressOn(planBox()!.querySelector('.home-working-plan-times')!)).toBe(true);
+        // Its own fields and buttons still take the press as usual.
+        expect(pressOn(planField('交付物'))).toBe(false);
+        expect(pressOn(planButton('保存'))).toBe(false);
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(document.activeElement).toBe(planField('开始'));
+      });
+
+      it('stays open, unsaved, while another window has focus', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await act(async () => planField('交付物').focus());
+        // Another window takes focus: the field loses it, and nothing is named as next.
+        pageFocused = false;
+        await act(async () => planField('交付物').blur());
+        await afterLeaving();
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(planField('交付物').value).toBe('三条笔记');
+        // Back in this window, focus returns to the field, and a press on the page saves it.
+        pageFocused = true;
+        await act(async () => planField('交付物').focus());
+        await act(async () => planField('交付物').blur());
+        await afterLeaving();
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+        expect(planBox()).toBeNull();
+      });
+
+      it('focus that comes back into it before the check is not leaving it', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await act(async () => planField('交付物').focus());
+        await act(async () => {
+          planField('交付物').blur();
+          planField('完成标准').focus();
+        });
+        await afterLeaving();
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(document.activeElement).toBe(planField('完成标准'));
+      });
+
+      it('a form that closed while another window had focus saves as usual on the next card', async () => {
+        const test = harness([task('a'), task('b')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await act(async () => planField('交付物').focus());
+        pageFocused = false;
+        await act(async () => planField('交付物').blur());
+        await afterLeaving();
+        // Meanwhile another page starts b, and then this window gets focus back.
+        test.setCurrent('b');
+        await test.render();
+        pageFocused = true;
+        expect(planBox()).toBeNull();
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', 'b 的稿子');
+        await act(async () => planField('交付物').focus());
+        await act(async () => planField('交付物').blur());
+        await afterLeaving();
+        expect(test.plans.get('b')?.deliverable).toBe('b 的稿子');
+        expect(planBox()).toBeNull();
+      });
+
+      it('a half-typed time is not saved as empty: it says so and waits to be finished', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        halfTyped('开始');
+        await keyOnPlan('交付物', 'Enter');
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(planHint()?.textContent).toBe('时间没填完整');
+        expect(document.activeElement).toBe(planField('开始'));
+        await act(async () => planButton('保存').click());
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        // Leaving keeps it open too, without pulling focus back.
+        await act(async () => planField('开始').blur());
+        await afterLeaving();
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(planField('交付物').value).toBe('三条笔记');
+        expect(document.activeElement).not.toBe(planField('开始'));
+        // Finished, the time has a value and the words go.
+        delete (planField('开始') as { validity?: ValidityState }).validity;
+        await typePlan('开始', '14:00');
+        expect(planHint()?.textContent).toBe('');
+        await keyOnPlan('开始', 'Enter');
+        expect(test.plans.get('a')).toEqual({
+          ...EMPTY_WORKING_PLAN,
+          start: '14:00',
+          deliverable: '三条笔记',
+        });
+      });
+
+      it('放下 and 开始 on another task do not save a half-typed time as empty', async () => {
+        const test = harness([task('a'), task('b')]);
+        test.plans.set('a', { ...EMPTY_WORKING_PLAN, start: '14:00' });
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        // The minutes are deleted: the browser now gives the time no value.
+        await typePlan('开始', '');
+        halfTyped('开始');
+        await act(async () => planField('交付物').focus());
+        await click('先放下 a');
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(test.plans.get('a')?.start).toBe('14:00');
+        expect(card()?.querySelector('[data-task-id="a"]')).not.toBeNull();
+        expect(planHint()?.textContent).toBe('时间没填完整');
+        expect(document.activeElement).toBe(planField('开始'));
+        await click('开始 b');
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(test.plans.get('a')?.start).toBe('14:00');
+        expect(card()?.querySelector('[data-task-id="a"]')).not.toBeNull();
+        // Finished, it goes with the card.
+        delete (planField('开始') as { validity?: ValidityState }).validity;
+        await typePlan('开始', '15:00');
+        await click('先放下 a');
+        expect(test.plans.get('a')?.start).toBe('15:00');
+        expect(card()).toBeNull();
+      });
+
+      it('a leave inside the app waits for a half-typed time, over a saved time or none', async () => {
+        const confirm = vi.spyOn(window, 'confirm');
+        try {
+          const test = harness([task('a')]);
+          test.plans.set('a', { ...EMPTY_WORKING_PLAN, start: '14:00' });
+          await test.render();
+          await click('开始 a');
+          await act(async () => planLine()!.click());
+          await typePlan('开始', '');
+          halfTyped('开始');
+          expect(await leaveAsync()).toBe(false);
+          expect(test.onSavePlan).not.toHaveBeenCalled();
+          expect(test.plans.get('a')?.start).toBe('14:00');
+          expect(planHint()?.textContent).toBe('时间没填完整');
+          await keyOnPlan('开始', 'Escape');
+          expect(await leaveAsync()).toBe(true);
+
+          // Nothing saved yet: only the key that typed it shows that anything is there.
+          test.plans.delete('a');
+          await test.render();
+          await act(async () => planLine()!.click());
+          expect(await reloadAsks()).toBe(false);
+          halfTyped('结束');
+          await keyUpOn('结束');
+          expect(await reloadAsks()).toBe(true);
+          expect(await leaveAsync()).toBe(false);
+          expect(planHint()?.textContent).toBe('时间没填完整');
+          expect(document.activeElement).toBe(planField('结束'));
+          expect(test.onSavePlan).not.toHaveBeenCalled();
+          expect(confirm).not.toHaveBeenCalled();
+        } finally {
+          confirm.mockRestore();
+        }
+      });
+
+      it('leaving with a half-typed time says so, and clearing the time takes the words away', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        halfTyped('结束');
+        await act(async () => notesField()!.focus());
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+        expect(planHint()?.textContent).toBe('时间没填完整');
+        expect(planField('交付物').value).toBe('三条笔记');
+        // Clearing the typed part leaves no value, as before, so no change event comes.
+        delete (planField('结束') as { validity?: ValidityState }).validity;
+        await keyUpOn('结束');
+        expect(planHint()?.textContent).toBe('');
+      });
+
+      it('a warning does not follow the form to the next card', async () => {
+        const test = harness([task('a'), task('b')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        halfTyped('开始');
+        await keyOnPlan('开始', 'Enter');
+        expect(planHint()?.textContent).toBe('时间没填完整');
+        // Another page starts b.
+        test.setCurrent('b');
+        await test.render();
+        await act(async () => planLine()!.click());
+        expect(planHint()?.textContent).toBe('');
+      });
+
+      it('leaving an unchanged form writes nothing', async () => {
+        const test = harness([task('a')]);
+        test.plans.set('a', filled);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await act(async () => notesField()!.focus());
+        expect(planBox()).toBeNull();
+        expect(test.onSavePlan).not.toHaveBeenCalled();
+      });
+
+      it('after a failed Enter, leaving the form tries again', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        test.onSavePlan.mockRejectedValueOnce(new Error('quota'));
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        await act(async () => notesField()!.focus());
+        expect(test.onSavePlan).toHaveBeenCalledTimes(2);
+        expect(test.plans.get('a')?.deliverable).toBe('三条笔记');
+        expect(planBox()).toBeNull();
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+      });
+
+      it('keeps values typed while a save runs, and leaving saves them', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        let finish: () => void = () => undefined;
+        test.onSavePlan.mockImplementationOnce(
+          () => new Promise<void>((resolve) => (finish = resolve)),
+        );
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条');
+        await keyOnPlan('交付物', 'Enter');
+        await typePlan('交付物', '三条笔记');
+        await act(async () => finish());
+        expect(planField('交付物').value).toBe('三条笔记');
+        await act(async () => notesField()!.focus());
+        expect(test.onSavePlan).toHaveBeenCalledTimes(2);
+        expect(test.plans.get('a')?.deliverable).toBe('三条笔记');
+        expect(planBox()).toBeNull();
+      });
+
+      it('a save that fails after Esc, or after its card ended, shows no error', async () => {
+        const a = task('a');
+        const test = harness([a]);
+        await test.render();
+        await click('开始 a');
+        let fail: (error: Error) => void = () => undefined;
+        const failLater = () =>
+          test.onSavePlan.mockImplementationOnce(
+            () => new Promise<void>((_, reject) => (fail = reject)),
+          );
+        failLater();
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        await keyOnPlan('交付物', 'Escape');
+        expect(planBox()).toBeNull();
+        await act(async () => fail(new Error('quota')));
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+
+        failLater();
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        // Completed meanwhile, here or on another page.
+        test.setOverview(buildHomeTaskOverview([a], [doneOn('a')], [], today));
+        await test.render();
+        expect(card()).toBeNull();
+        await act(async () => fail(new Error('quota')));
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+      });
+
+      it('clearing every field removes the plan', async () => {
+        const test = harness([task('a')]);
+        test.plans.set('a', filled);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await fillPlan(EMPTY_WORKING_PLAN);
+        await keyOnPlan('完成标准', 'Enter');
+        expect(test.plans.has('a')).toBe(false);
+        expect(planLine()?.textContent).toBe('+ 写明时间、交付物和完成标准');
+      });
+
+      it('keeps the values and the form after a failed save, and clears the error on success', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        test.onSavePlan.mockRejectedValueOnce(new Error('quota'));
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        expect(planField('交付物').value).toBe('三条笔记');
+        expect(test.plans.has('a')).toBe(false);
+        await keyOnPlan('交付物', 'Enter');
+        expect(test.onSavePlan).toHaveBeenCalledTimes(2);
+        expect(test.plans.get('a')?.deliverable).toBe('三条笔记');
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+      });
+
+      it('says when the end is before the start, and still saves it', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        // The live region is there, empty, before it has anything to say.
+        const hint = planHint();
+        expect(hint?.getAttribute('role')).toBe('status');
+        expect(hint?.textContent).toBe('');
+        expect(planField('结束').getAttribute('aria-describedby')).toBe(hint?.id);
+        expect(planField('开始').getAttribute('aria-describedby')).toBe(hint?.id);
+        await typePlan('开始', '23:00');
+        expect(container.textContent).not.toContain('结束时间早于开始时间');
+        await typePlan('结束', '01:00');
+        expect(planHint()).toBe(hint);
+        expect(hint?.textContent).toBe('结束时间早于开始时间');
+        await keyOnPlan('结束', 'Enter');
+        expect(test.plans.get('a')).toMatchObject({ start: '23:00', end: '01:00' });
+        expect(summary()).toEqual(['23:00–01:00']);
+      });
+
+      it('saves an open plan before putting down or switching, and a failure keeps the card', async () => {
+        const test = harness([task('a'), task('b')]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', 'a 的稿子');
+        test.onSavePlan.mockRejectedValueOnce(new Error('quota'));
+        await click('先放下 a');
+        expect(card()?.textContent).toContain('a');
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        expect(planField('交付物').value).toBe('a 的稿子');
+
+        await click('先放下 a');
+        expect(test.plans.get('a')?.deliverable).toBe('a 的稿子');
+        expect(card()).toBeNull();
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('完成标准', '写完');
+        await click('开始 b');
+        expect(test.plans.get('a')).toEqual({
+          ...EMPTY_WORKING_PLAN,
+          deliverable: 'a 的稿子',
+          criteria: '写完',
+        });
+        expect(card()?.querySelector('[data-task-id="b"]')).not.toBeNull();
+        expect(planLine()?.textContent).toBe('+ 写明时间、交付物和完成标准');
+      });
+
+      it('saves an open plan before the page is left, and asks before a reload only while changed', async () => {
+        const confirm = vi.spyOn(window, 'confirm');
+        try {
+          const test = harness([task('a')]);
+          await test.render();
+          await click('开始 a');
+          await act(async () => planLine()!.click());
+          expect(await reloadAsks()).toBe(false);
+          await typePlan('交付物', '三条笔记 ');
+          expect(await reloadAsks()).toBe(true);
+          expect(await leaveAsync()).toBe(true);
+          expect(test.plans.get('a')?.deliverable).toBe('三条笔记');
+          expect(confirm).not.toHaveBeenCalled();
+          expect(await reloadAsks()).toBe(false);
+        } finally {
+          confirm.mockRestore();
+        }
+      });
+
+      it('stays on the page with the values and the error when that save fails', async () => {
+        const test = harness([task('a')]);
+        await test.render();
+        await click('开始 a');
+        test.onSavePlan.mockRejectedValue(new Error('quota'));
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        expect(await leaveAsync()).toBe(false);
+        expect(planField('交付物').value).toBe('三条笔记');
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        await keyOnPlan('交付物', 'Escape');
+        expect(await leaveAsync()).toBe(true);
+      });
+
+      it('a draft that could not be saved ends with its card, and an undo does not reopen it', async () => {
+        const a = task('a');
+        const test = harness([a]);
+        await test.render();
+        await click('开始 a');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        test.onSavePlan.mockRejectedValueOnce(new Error('quota'));
+        // Pressing the check takes focus there first, which saves the form, and that fails.
+        const check = container.querySelector<HTMLButtonElement>('[aria-label="完成 a"]')!;
+        await act(async () => check.focus());
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        await click('完成 a');
+        test.setOverview(buildHomeTaskOverview([a], [doneOn('a')], [], today));
+        await test.render();
+        expect(card()).toBeNull();
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+
+        const heading = container.querySelector<HTMLElement>('#home-tasks-heading')!;
+        await act(async () => heading.focus());
+        test.setOverview(buildHomeTaskOverview([a], [], [], today));
+        await test.render();
+        expect(card()?.querySelector('[data-task-id="a"]')).not.toBeNull();
+        expect(planBox()).toBeNull();
+        expect(planLine()?.textContent).toBe('+ 写明时间、交付物和完成标准');
+        expect(document.activeElement).toBe(heading);
+        expect(test.onSavePlan).toHaveBeenCalledOnce();
+      });
+
+      it('a failed next step keeps its error when the plan saves after failing', async () => {
+        const onSavePlan = vi
+          .fn()
+          .mockRejectedValueOnce(new Error('quota'))
+          .mockResolvedValue(undefined);
+        await act(async () =>
+          root.render(
+            <HomeTasks
+              overview={buildHomeTaskOverview([task('a')], [], [], today)}
+              unavailable={false}
+              busy={false}
+              writer={{ createTask: vi.fn() }}
+              onToggle={vi.fn()}
+              onCreated={noop}
+              onEdit={noop}
+              onManage={noop}
+              working={{
+                row: rowOf(task('a')),
+                note: '',
+                plan: EMPTY_WORKING_PLAN,
+                onStart: vi.fn(),
+                onPutDown: vi.fn(),
+                onSaveNote: vi.fn().mockRejectedValue(new Error('quota')),
+                onSavePlan,
+                onSaveTaskNotes: vi.fn(),
+              }}
+            />,
+          ),
+        );
+        await act(async () => nextLine()!.click());
+        await typeNext('写小标题');
+        await keyOnNext('Enter');
+        await act(async () => planLine()!.click());
+        await typePlan('交付物', '三条笔记');
+        await keyOnPlan('交付物', 'Enter');
+        expect(container.textContent).toContain('下一步没保存，请重试。');
+        expect(container.textContent).toContain('计划没保存，请重试。');
+        await keyOnPlan('交付物', 'Enter');
+        expect(onSavePlan).toHaveBeenCalledTimes(2);
+        expect(planBox()).toBeNull();
+        expect(container.textContent).not.toContain('计划没保存，请重试。');
+        // The next step is still open and unsaved, and still says so.
+        expect(nextInput()?.value).toBe('写小标题');
+        expect(container.textContent).toContain('下一步没保存，请重试。');
+      });
+
+      it('a finished card keeps its plan exactly as it was, read-only', async () => {
+        const [a, b] = [task('a'), task('b')];
+        const test = harness([a, b]);
+        test.plans.set('a', filled);
+        await test.render();
+        await click('开始 a');
+        await click('完成 a');
+        test.setCelebration(celebrationFor('a'));
+        await test.render();
+        test.setOverview(buildHomeTaskOverview([a, b], [doneOn('a')], [], today));
+        await test.render();
+        expect(card()?.querySelector('.home-task-ghost')).not.toBeNull();
+        expect(container.querySelector('.home-working-fields')?.hasAttribute('inert')).toBe(true);
+        expect(summary()).toEqual([
+          '14:00–15:30',
+          '交付物：第九章的三条笔记',
+          '完成标准：看完第九章，并写下三条笔记',
+        ]);
+        expect(planBox()).toBeNull();
+      });
+
+      it('is not drawn on ordinary rows', async () => {
+        const test = harness([task('a'), task('b')]);
+        test.plans.set('a', filled);
+        await test.render();
+        expect(planLine()).toBeNull();
+        await click('开始 b');
+        await openList();
+        expect(container.textContent).not.toContain('第九章的三条笔记');
       });
     });
 
@@ -1874,9 +2711,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote: vi.fn(),
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes,
               }}
             />,
@@ -1983,9 +2822,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote: vi.fn(),
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes: () => new Promise<DailyTask>((resolve) => (finish = resolve)),
               }}
             />,
@@ -2095,9 +2936,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote: vi.fn(),
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes,
               }}
             />,
@@ -2575,9 +3418,11 @@ describe('Home task workspace', () => {
               working={{
                 row: rowOf(task('a')),
                 note: '',
+                plan: EMPTY_WORKING_PLAN,
                 onStart: vi.fn(),
                 onPutDown: vi.fn(),
                 onSaveNote: vi.fn(),
+                onSavePlan: vi.fn(),
                 onSaveTaskNotes,
               }}
             />,

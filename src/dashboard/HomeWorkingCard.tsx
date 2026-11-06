@@ -1,14 +1,21 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
+  type KeyboardEvent,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from 'react';
 import type { DailyTask, TaskOccurrence } from '../database';
-import { WORKING_NOTE_MAX_LENGTH } from '../models/working-card';
+import {
+  WORKING_NOTE_MAX_LENGTH,
+  WORKING_PLAN_TEXT_MAX_LENGTH,
+  type WorkingPlanFields,
+} from '../models/working-card';
 import { Notice } from '../shared/components';
 import './working-card.css';
 
@@ -385,6 +392,23 @@ interface NextStepField {
   onCancel(): void;
 }
 
+interface PlanField {
+  plan: WorkingPlanFields;
+  editing: boolean;
+  onOpen(): void;
+  onChange(plan: WorkingPlanFields): void;
+  /** Settles to false when the plan could not be saved; the editor then stays open. */
+  onCommit(): Promise<boolean>;
+  onCancel(): void;
+  /** A time with only some of its parts typed has no value, so the list cannot see it by itself. */
+  onUnfinished(unfinished: boolean): void;
+  /**
+   * Set while the form is open, for saves that do not start in it (放下, 开始 on another task, a
+   * leave): false, with the form saying so, while a time is half typed.
+   */
+  readyRef: RefObject<(() => boolean) | null>;
+}
+
 /**
  * The one task being worked on. The row itself comes from the list's own renderer, so completing,
  * the stamp and the coin behave exactly as on any other row. Without `fields` the card holds only
@@ -397,7 +421,7 @@ export function HomeWorkingCard({
 }: {
   children: ReactNode;
   cardRef?: Ref<HTMLElement>;
-  fields?: { finished: boolean; next: NextStepField; notes: TaskNotes };
+  fields?: { finished: boolean; plan: PlanField; next: NextStepField; notes: TaskNotes };
 }) {
   return (
     <section ref={cardRef} className="home-working-card" aria-labelledby="home-working-heading">
@@ -405,6 +429,7 @@ export function HomeWorkingCard({
       {children}
       {fields && (
         <div className="home-working-fields" inert={fields.finished}>
+          <PlanArea {...fields.plan} />
           <NextStepLine {...fields.next} />
           <TaskNotesArea {...fields.notes} />
         </div>
@@ -487,6 +512,250 @@ function NextStepLine({ text, editing, onOpen, onChange, onCommit, onCancel }: N
         }
       }}
     />
+  );
+}
+
+/** One short line of times: both, or whichever one was given. */
+export function planTimeText(plan: Pick<WorkingPlanFields, 'start' | 'end'>): string {
+  if (plan.start && plan.end) return `${plan.start}–${plan.end}`;
+  if (plan.start) return `${plan.start} 开始`;
+  if (plan.end) return `${plan.end} 前完成`;
+  return '';
+}
+
+function planLines(plan: WorkingPlanFields): string[] {
+  return [
+    planTimeText(plan),
+    plan.deliverable && `交付物：${plan.deliverable}`,
+    plan.criteria && `完成标准：${plan.criteria}`,
+  ].filter((line) => line !== '');
+}
+
+/**
+ * When, what comes out, and how to tell it is done. A quiet button until it is clicked, then a
+ * small form that saves on Enter, on 保存 and when focus leaves it, and gives it all back on Esc.
+ */
+function PlanArea({
+  plan,
+  editing,
+  onOpen,
+  onChange,
+  onCommit,
+  onCancel,
+  onUnfinished,
+  readyRef,
+}: PlanField) {
+  const id = useId();
+  const box = useRef<HTMLFieldSetElement>(null);
+  const line = useRef<HTMLButtonElement>(null);
+  // Enter, Esc, 保存 or 取消 already decided: focus leaving the form must not save a second time.
+  const decided = useRef(false);
+  const focusLine = useRef(false);
+  const leaveCheck = useRef<number | undefined>(undefined);
+  // A save was refused because a time is half typed: it has no value, so saving would drop it.
+  const [incomplete, setIncomplete] = useState(false);
+
+  const unfinishedTime = () =>
+    [...(box.current?.querySelectorAll<HTMLInputElement>('input[type="time"]') ?? [])].find(
+      (input) => input.validity.badInput,
+    );
+  /** False while a time is half typed, and then the form says so and puts focus on that time. */
+  const ready = () => {
+    const unfinished = unfinishedTime();
+    if (!unfinished) return true;
+    setIncomplete(true);
+    unfinished.focus();
+    return false;
+  };
+  /** Typing or clearing part of a time can change it without any change event. */
+  const recheck = () => {
+    const unfinished = Boolean(unfinishedTime());
+    if (!unfinished) setIncomplete(false);
+    onUnfinished(unfinished);
+  };
+
+  useEffect(() => {
+    // The same form serves the next card too: each opening starts without an old warning.
+    setIncomplete(false);
+    if (editing) {
+      decided.current = false;
+      box.current?.querySelector<HTMLInputElement>('input')?.focus();
+    } else if (focusLine.current) {
+      focusLine.current = false;
+      line.current?.focus();
+    }
+  }, [editing]);
+  useEffect(() => {
+    if (!editing) return;
+    readyRef.current = ready;
+    return () => {
+      readyRef.current = null;
+      window.clearTimeout(leaveCheck.current);
+    };
+    // `ready` reads only refs and a state setter, so the first one stays right while it is open.
+  }, [editing, readyRef]);
+
+  if (!editing) {
+    const lines = planLines(plan);
+    return (
+      <button
+        ref={line}
+        type="button"
+        className={`home-working-plan-line${lines.length ? ' has-text' : ''}`}
+        aria-label={lines.length ? `修改计划：${lines.join('，')}` : undefined}
+        onClick={onOpen}
+      >
+        {lines.length ? (
+          lines.map((text) => <span key={text}>{text}</span>)
+        ) : (
+          <>
+            <span aria-hidden="true">+</span> 写明时间、交付物和完成标准
+          </>
+        )}
+      </button>
+    );
+  }
+
+  const commit = () => {
+    if (!ready()) return;
+    setIncomplete(false);
+    decided.current = true;
+    focusLine.current = true;
+    void onCommit().then((saved) => {
+      if (saved) return;
+      decided.current = false;
+      focusLine.current = false;
+    });
+  };
+  const cancel = () => {
+    setIncomplete(false);
+    decided.current = true;
+    focusLine.current = true;
+    onCancel();
+  };
+  /** Focus left the form for good: saved, unless a time is half typed, which stays to be finished. */
+  const left = () => {
+    if (decided.current) return;
+    if (unfinishedTime()) {
+      setIncomplete(true);
+      return;
+    }
+    setIncomplete(false);
+    void onCommit();
+  };
+  const change = (field: keyof WorkingPlanFields, value: string) => {
+    // Typed after Enter: Enter no longer settles the form, so leaving it saves the newest values.
+    decided.current = false;
+    focusLine.current = false;
+    onChange({ ...plan, [field]: value });
+    if (field === 'start' || field === 'end') recheck();
+  };
+  const isTime = (target: EventTarget) =>
+    target instanceof HTMLInputElement && target.type === 'time';
+  const onKeyDown = (event: KeyboardEvent<HTMLFieldSetElement>) => {
+    // Enter ends a Chinese composition first; it must not also submit.
+    if (event.nativeEvent.isComposing || event.keyCode === 229) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancel();
+    } else if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+      event.preventDefault();
+      commit();
+    }
+  };
+  // Allowed: the work can run past midnight.
+  const endsEarly = Boolean(plan.start && plan.end && plan.end < plan.start);
+  const hint = [incomplete && '时间没填完整', endsEarly && '结束时间早于开始时间']
+    .filter((text) => text !== false)
+    .join('，');
+  return (
+    <fieldset
+      ref={box}
+      className="home-working-plan"
+      onKeyDown={onKeyDown}
+      onKeyUp={(event) => {
+        // Clearing the last typed part of a time changes nothing React hears about.
+        if (isTime(event.target)) recheck();
+      }}
+      onMouseDown={(event) => {
+        // A press on the legend, a caption or a gap keeps focus where it is; a caption's click
+        // still moves it to its own field. Without this the press blurs the form to the page.
+        if (!(event.target instanceof Element) || !event.target.closest('input, button'))
+          event.preventDefault();
+      }}
+      onBlur={(event) => {
+        if (isTime(event.target)) recheck();
+        // Moving between its own fields is not leaving it.
+        const next = event.relatedTarget;
+        if (next instanceof Node && event.currentTarget.contains(next)) return;
+        if (next) {
+          left();
+          return;
+        }
+        // Nowhere named: a press on the page, or another window. Only the first leaves the form:
+        // back from the other window, focus returns to the field it was in.
+        window.clearTimeout(leaveCheck.current);
+        leaveCheck.current = window.setTimeout(() => {
+          const form = box.current;
+          if (!form || !document.hasFocus() || form.contains(document.activeElement)) return;
+          left();
+        }, 0);
+      }}
+    >
+      <legend>计划</legend>
+      <div className="home-working-plan-times">
+        <label>
+          <span>开始</span>
+          <input
+            type="time"
+            value={plan.start}
+            aria-describedby={`${id}-hint`}
+            onChange={(event) => change('start', event.target.value)}
+          />
+        </label>
+        <label>
+          <span>结束</span>
+          <input
+            type="time"
+            value={plan.end}
+            aria-describedby={`${id}-hint`}
+            onChange={(event) => change('end', event.target.value)}
+          />
+        </label>
+      </div>
+      {/* Always there, so a screen reader hears the words when they appear. */}
+      <p id={`${id}-hint`} className="home-working-plan-hint" role="status">
+        {hint}
+      </p>
+      <label className="home-working-plan-text">
+        <span>交付物</span>
+        <input
+          value={plan.deliverable}
+          maxLength={WORKING_PLAN_TEXT_MAX_LENGTH}
+          autoComplete="off"
+          placeholder="例如：第九章的三条笔记"
+          onChange={(event) => change('deliverable', event.target.value)}
+        />
+      </label>
+      <label className="home-working-plan-text">
+        <span>完成标准</span>
+        <input
+          value={plan.criteria}
+          maxLength={WORKING_PLAN_TEXT_MAX_LENGTH}
+          autoComplete="off"
+          placeholder="例如：看完第九章，并写下三条笔记"
+          onChange={(event) => change('criteria', event.target.value)}
+        />
+      </label>
+      <div className="home-working-plan-actions">
+        <button type="button" className="button text-button" onClick={commit}>
+          保存
+        </button>
+        <button type="button" className="button text-button" onClick={cancel}>
+          取消
+        </button>
+      </div>
+    </fieldset>
   );
 }
 

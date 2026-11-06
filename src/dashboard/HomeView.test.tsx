@@ -1902,6 +1902,61 @@ describe('HomeView', () => {
       });
     });
 
+    it('keeps the card plan in the working-card record and shows it again after a reload', async () => {
+      const values = stubCardStorage();
+      const atomic = vi.fn();
+      const plan = { changeTaskSkipAtomic: vi.fn(), updateTask: vi.fn(), archiveTask: vi.fn() };
+      const ports = {
+        taskActions: { complete: vi.fn(), undo: vi.fn(), atomic },
+        taskPlanPort: plan,
+      };
+      await mount(ports);
+      await click('开始 Open one');
+      const planLine = () => container.querySelector<HTMLButtonElement>('.home-working-plan-line');
+      await act(async () => planLine()!.click());
+      const fields = [...container.querySelectorAll<HTMLInputElement>('.home-working-plan input')];
+      for (const [index, value] of ['14:00', '15:30', '第九章的三条笔记', '看完第九章'].entries())
+        act(() => {
+          const el = fields[index]!;
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
+            el,
+            value,
+          );
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      await act(async () =>
+        fields[3]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })),
+      );
+      expect(values['valrecall.workingCard']).toMatchObject({
+        current: { taskId: 'open-one', startedOn: today },
+        plans: [
+          {
+            taskId: 'open-one',
+            date: today,
+            start: '14:00',
+            end: '15:30',
+            deliverable: '第九章的三条笔记',
+            criteria: '看完第九章',
+          },
+        ],
+      });
+
+      await act(async () => root.render(<></>));
+      await mount(ports);
+      expect(working()).toBe(true);
+      expect(planLine()?.getAttribute('aria-label')).toBe(
+        '修改计划：14:00–15:30，交付物：第九章的三条笔记，完成标准：看完第九章',
+      );
+      await act(async () => textButton('先放下')?.click());
+      expect(values['valrecall.workingCard']).toMatchObject({ current: null });
+      expect((values['valrecall.workingCard'] as { plans: unknown[] }).plans).toHaveLength(1);
+      // Writes no task: the plan lives on the card, not on DailyTask.
+      expect(plan.updateTask).not.toHaveBeenCalled();
+      expect(plan.archiveTask).not.toHaveBeenCalled();
+      expect(plan.changeTaskSkipAtomic).not.toHaveBeenCalled();
+      expect(atomic).not.toHaveBeenCalled();
+    });
+
     describe('the flip between the layouts', () => {
       /** A browser that has taken the old picture only when the test says so. */
       function stubTransitions() {

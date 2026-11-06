@@ -17,6 +17,11 @@ import { TASK_CELEBRATION_MS, type TaskCelebration } from '../shared/task-celebr
 import type { TaskAllowanceResult } from '../shared/allowance';
 import { useReducedMotion } from '../ui/motion';
 import {
+  EMPTY_WORKING_PLAN,
+  sameWorkingPlan,
+  type WorkingPlanFields,
+} from '../models/working-card';
+import {
   HomeWorkingCard,
   StrandedNotes,
   useAfterPress,
@@ -42,9 +47,12 @@ type ActiveGroup = 'today' | 'overdue' | 'working';
 export interface HomeWorkingControls {
   row: TaskOccurrence | null;
   note: string;
+  /** The card's 计划: times, deliverable and completion criterion, as stored. */
+  plan: WorkingPlanFields;
   onStart(row: TaskOccurrence): Promise<void>;
   onPutDown(): Promise<void>;
   onSaveNote(row: TaskOccurrence, text: string): Promise<void>;
+  onSavePlan(row: TaskOccurrence, plan: WorkingPlanFields): Promise<void>;
   /** The task's own 备注. No lock and no reward: saving a thought is not an action on the task. */
   onSaveTaskNotes(taskId: string, notes: string | null): Promise<DailyTask>;
 }
@@ -73,6 +81,8 @@ interface DepartingRow {
   height: number;
   /** The card's next step at that moment, so a finished card looks exactly as it did. */
   note: string;
+  /** Its plan at that moment, for the same reason. */
+  plan: WorkingPlanFields;
 }
 
 /** Each finished row folds on its own clock, so quick successive completions never jump. */
@@ -86,6 +96,7 @@ interface Departure extends DepartingRow {
 /** A refresh that never removes the row must not leave it looking finished forever. */
 const DEPARTURE_WAIT_MS = 5000;
 const NOTE_SAVE_ERROR = '下一步没保存，请重试。';
+const PLAN_SAVE_ERROR = '计划没保存，请重试。';
 
 export function HomeTasks({
   overview,
@@ -132,6 +143,9 @@ export function HomeTasks({
   const [itemError, setItemError] = useState<string | null>(null);
   // Only a failed save is shown here; a success is announced by Home's hidden status line.
   const [saveError, setSaveError] = useState<string | null>(null);
+  // The card's two editors fail on their own: one saving must not hide the other's failure.
+  const [noteFailed, setNoteFailed] = useState(false);
+  const [planFailed, setPlanFailed] = useState(false);
   const operation = useOperation();
   const alive = useRef(true);
   const loadingItems = useRef(false);
@@ -156,6 +170,26 @@ export function HomeTasks({
   const [noteDraft, setNoteDraft] = useState<{ key: string; text: string } | null>(null);
   const noteEditing = noteDraft !== null && noteDraft.key === workingKey;
   const noteText = noteEditing ? noteDraft.text : (working?.note ?? '');
+  // The same for the plan: present while it is being edited, and after a failed save.
+  // `unfinished`: a time is half typed. It has no value yet, so the plan alone cannot show it.
+  const [planDraft, setPlanDraft] = useState<{
+    key: string;
+    plan: WorkingPlanFields;
+    unfinished: boolean;
+  } | null>(null);
+  const planEditing = planDraft !== null && planDraft.key === workingKey;
+  const storedPlan = working?.plan ?? EMPTY_WORKING_PLAN;
+  const planShown = planEditing ? planDraft.plan : storedPlan;
+  // Set by the open form: false, and the form says why, while a time is half typed.
+  const planReady = useRef<(() => boolean) | null>(null);
+  // A save that fails after its card has ended, or after its draft was given up, has no editor
+  // left to show its error in.
+  const workingKeyNow = useRef(workingKey);
+  workingKeyNow.current = workingKey;
+  const noteDraftNow = useRef(noteDraft);
+  noteDraftNow.current = noteDraft;
+  const planDraftNow = useRef(planDraft);
+  planDraftNow.current = planDraft;
   const [menuKey, setMenuKey] = useState<string | null>(null);
   const [planUndo, setPlanUndo] = useState<PlanUndo | null>(null);
   const restToggle = useRef<HTMLButtonElement>(null);
@@ -226,6 +260,15 @@ export function HomeTasks({
     busy: false,
     prepareLeave: () => (workingRow ? saveNote(workingRow, noteText) : Promise.resolve(true)),
     draftVersion: nextStepKeystrokes.current,
+  });
+  // An open plan is removed with the page too, and needs its own entry for the same reasons.
+  const planKeystrokes = useRef(0);
+  useEditProtection({
+    dirty: planEditing && (planDraft.unfinished || !sameWorkingPlan(planShown, storedPlan)),
+    busy: false,
+    prepareLeave: async () =>
+      !workingRow || (planCanSave() && (await savePlan(workingRow, planShown))),
+    draftVersion: planKeystrokes.current,
   });
 
   useEffect(() => {
@@ -344,6 +387,18 @@ export function HomeTasks({
       pendingNext.current = null;
     }
   }, [overview, workingKey, layoutFlipping]);
+  // The card ended without its drafts: completed, or changed on another page. An undo brings the
+  // same occurrence back, and an old draft must not reopen it, or take focus, by itself.
+  useEffect(() => {
+    if (noteDraft && noteDraft.key !== workingKey) {
+      setNoteDraft(null);
+      setNoteFailed(false);
+    }
+    if (planDraft && planDraft.key !== workingKey) {
+      setPlanDraft(null);
+      setPlanFailed(false);
+    }
+  }, [workingKey, noteDraft, planDraft]);
   // Another page started a card while focus was in the list that just collapsed.
   useEffect(() => {
     if (restHidden && rest.current?.contains(document.activeElement)) restToggle.current?.focus();
@@ -439,6 +494,7 @@ export function HomeTasks({
         occurrence: withNewestTask(row, flushed?.task ?? null),
         height: element?.offsetHeight ?? 0,
         note: group === 'working' ? noteText : '',
+        plan: group === 'working' ? planShown : EMPTY_WORKING_PLAN,
       };
     }
     setInFlightKey(key);
@@ -477,10 +533,6 @@ export function HomeTasks({
     );
   }
 
-  function clearNoteError() {
-    setSaveError((current) => (current === NOTE_SAVE_ERROR ? null : current));
-  }
-
   async function saveNote(row: TaskOccurrence, text: string): Promise<boolean> {
     const key = occurrenceKey(row);
     // Text typed while this save ran belongs to a later one, so the field stays open for it. The
@@ -488,7 +540,7 @@ export function HomeTasks({
     const settled = () =>
       afterPress(() => {
         setNoteDraft((current) => (current?.key === key && current.text === text ? null : current));
-        clearNoteError();
+        setNoteFailed(false);
       });
     if (!working || text.trim() === working.note) {
       settled();
@@ -499,14 +551,48 @@ export function HomeTasks({
       if (alive.current) settled();
       return true;
     } catch {
-      if (alive.current) setSaveError(NOTE_SAVE_ERROR);
+      if (alive.current && workingKeyNow.current === key && noteDraftNow.current?.key === key)
+        setNoteFailed(true);
       return false;
     }
   }
 
+  async function savePlan(row: TaskOccurrence, next: WorkingPlanFields): Promise<boolean> {
+    const key = occurrenceKey(row);
+    // Values typed while this save ran belong to a later one, so the form stays open for them.
+    const settled = () =>
+      afterPress(() => {
+        setPlanDraft((current) =>
+          current?.key === key && samePlanFields(current.plan, next) ? null : current,
+        );
+        setPlanFailed(false);
+      });
+    if (!working || sameWorkingPlan(next, working.plan)) {
+      settled();
+      return true;
+    }
+    try {
+      await working.onSavePlan(row, next);
+      if (alive.current) settled();
+      return true;
+    } catch {
+      if (alive.current && workingKeyNow.current === key && planDraftNow.current?.key === key)
+        setPlanFailed(true);
+      return false;
+    }
+  }
+
+  /** An open plan with a half-typed time is not saved as empty, from anywhere: the form says so. */
+  function planCanSave(): boolean {
+    return !planEditing || (planReady.current?.() ?? true);
+  }
+
   /** Whatever was written on the card reaches its task before the card ends. */
   async function saveCard(row: TaskOccurrence): Promise<boolean> {
-    return (await flushNotes()).ok && (await saveNote(row, noteText));
+    if (!planCanSave()) return false;
+    return (
+      (await flushNotes()).ok && (await saveNote(row, noteText)) && (await savePlan(row, planShown))
+    );
   }
 
   async function beginWork(row: TaskOccurrence) {
@@ -870,6 +956,36 @@ export function HomeTasks({
               ? {
                   fields: {
                     finished: !workingRow,
+                    plan: {
+                      plan: workingRow ? planShown : (heldCard?.plan ?? EMPTY_WORKING_PLAN),
+                      editing: planEditing,
+                      onOpen: () =>
+                        workingKey &&
+                        setPlanDraft({ key: workingKey, plan: planShown, unfinished: false }),
+                      onChange: (next: WorkingPlanFields) => {
+                        planKeystrokes.current += 1;
+                        const key = workingKey;
+                        if (key)
+                          setPlanDraft((current) => ({
+                            key,
+                            plan: next,
+                            unfinished: current?.key === key && current.unfinished,
+                          }));
+                      },
+                      onUnfinished: (unfinished: boolean) =>
+                        setPlanDraft((current) =>
+                          current && current.key === workingKey && current.unfinished !== unfinished
+                            ? { ...current, unfinished }
+                            : current,
+                        ),
+                      readyRef: planReady,
+                      onCommit: () =>
+                        workingRow ? savePlan(workingRow, planShown) : Promise.resolve(true),
+                      onCancel: () => {
+                        setPlanDraft(null);
+                        setPlanFailed(false);
+                      },
+                    },
                     next: {
                       text: workingRow ? noteText : (heldCard?.note ?? ''),
                       editing: noteEditing,
@@ -882,7 +998,7 @@ export function HomeTasks({
                         workingRow ? saveNote(workingRow, noteText) : Promise.resolve(true),
                       onCancel: () => {
                         setNoteDraft(null);
-                        clearNoteError();
+                        setNoteFailed(false);
                       },
                     },
                     notes,
@@ -912,6 +1028,8 @@ export function HomeTasks({
         aria-label="全部待办列表"
       >
         {saveError && <Notice tone="error">{saveError}</Notice>}
+        {noteFailed && <Notice tone="error">{NOTE_SAVE_ERROR}</Notice>}
+        {planFailed && <Notice tone="error">{PLAN_SAVE_ERROR}</Notice>}
         <StrandedNotes
           notes={notes}
           focusAfter={() =>
@@ -1040,6 +1158,16 @@ export function HomeTasks({
 
 function occurrenceKey(row: TaskOccurrence): string {
   return `${row.task.id}:${row.localDate}`;
+}
+
+/** Exactly the same values, untrimmed: anything typed since is a newer draft. */
+function samePlanFields(a: WorkingPlanFields, b: WorkingPlanFields): boolean {
+  return (
+    a.start === b.start &&
+    a.end === b.end &&
+    a.deliverable === b.deliverable &&
+    a.criteria === b.criteria
+  );
 }
 
 function withNewestTask(row: TaskOccurrence, task: DailyTask | null): TaskOccurrence {

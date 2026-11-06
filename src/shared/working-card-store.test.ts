@@ -20,11 +20,15 @@ function memory(initial: Record<string, unknown> = {}) {
 
 describe('working card storage', () => {
   it('reads the defaults with no storage, nothing stored, or a corrupt value', async () => {
-    expect(await loadWorkingCard(null)).toEqual({ ...DEFAULT_WORKING_CARD, notes: [] });
-    expect(await loadWorkingCard(memory().storage)).toEqual({ ...DEFAULT_WORKING_CARD, notes: [] });
+    expect(await loadWorkingCard(null)).toEqual({ ...DEFAULT_WORKING_CARD, notes: [], plans: [] });
+    expect(await loadWorkingCard(memory().storage)).toEqual({
+      ...DEFAULT_WORKING_CARD,
+      notes: [],
+      plans: [],
+    });
     expect(
       await loadWorkingCard(memory({ [WORKING_CARD_STORAGE_KEY]: 'corrupt' }).storage),
-    ).toEqual({ ...DEFAULT_WORKING_CARD, notes: [] });
+    ).toEqual({ ...DEFAULT_WORKING_CARD, notes: [], plans: [] });
   });
 
   it('round-trips a saved state under its own key', async () => {
@@ -32,6 +36,7 @@ describe('working card storage', () => {
     const state = {
       ...DEFAULT_WORKING_CARD,
       notes: [],
+      plans: [],
       current: { taskId: 'a', startedOn: '2026-10-30' },
     };
     await saveWorkingCard(state, storage);
@@ -51,10 +56,24 @@ describe('working card storage', () => {
         version: 1,
         current: { taskId: 'a', startedOn: '2026-10-30' },
         notes: [{ taskId: 'a', text: 'secret', date: '2026-10-30' }],
+        plans: [
+          {
+            taskId: 'a',
+            date: '2026-10-30',
+            start: '14:00',
+            end: '',
+            deliverable: 'secret',
+            criteria: '',
+          },
+        ],
       },
     });
     await forgetDeletedTask('a', storage);
-    expect(values[WORKING_CARD_STORAGE_KEY]).toMatchObject({ current: null, notes: [] });
+    expect(values[WORKING_CARD_STORAGE_KEY]).toMatchObject({
+      current: null,
+      notes: [],
+      plans: [],
+    });
     const broken: WorkingCardStorage = {
       ...storage,
       get: vi.fn().mockRejectedValue(new Error('no storage')),

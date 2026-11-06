@@ -22,7 +22,7 @@ export function chromeWorkingCardStorage(): WorkingCardStorage | null {
 export async function loadWorkingCard(
   storage: WorkingCardStorage | null = chromeWorkingCardStorage(),
 ): Promise<WorkingCardState> {
-  if (!storage) return { ...DEFAULT_WORKING_CARD, notes: [] };
+  if (!storage) return { ...DEFAULT_WORKING_CARD, notes: [], plans: [] };
   const stored = await storage.get(WORKING_CARD_STORAGE_KEY);
   return normalizeWorkingCardState(stored?.[WORKING_CARD_STORAGE_KEY]);
 }

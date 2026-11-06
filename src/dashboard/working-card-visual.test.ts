@@ -24,6 +24,26 @@ describe('working card and layout styles', () => {
     expect(input).toContain('border-bottom: 1px solid');
   });
 
+  it('keeps the plan as quiet as the next step, and lets its fields wrap at narrow widths', () => {
+    expect(rule('.home-working-plan-line')).toContain('font-size: calc(13px * var(--font-scale))');
+    expect(rule('.home-working-plan-line')).toContain('color: var(--muted)');
+    expect(rule('.home-working-plan-line')).toContain('overflow-wrap: anywhere');
+    // The empty line mixes a mark and text, so only a filled one is laid out as lines.
+    expect(rule('.home-working-plan-line')).not.toContain('display');
+    expect(rule('.home-working-plan-line.has-text')).toContain('display: grid');
+    expect(rule('.home-working-plan')).toContain('min-width: 0');
+    expect(rule('.home-working-plan')).toContain('border: 0');
+    expect(rule('.home-working-plan-times')).toContain('flex-wrap: wrap');
+    expect(rule('.home-working-plan-actions')).toContain('flex-wrap: wrap');
+    expect(rule('.home-working-plan-actions .button.text-button')).toContain('min-height: 44px');
+    // The hint's live region stays on the page while empty, hidden the .sr-only way and out of
+    // the form's gaps, never with display: none, which would take it out of the reading tree.
+    const emptyHint = rule('.home-working-plan-hint:empty');
+    expect(emptyHint).toContain('position: absolute');
+    expect(emptyHint).toContain('clip-path: inset(50%)');
+    expect(emptyHint).not.toContain('display');
+  });
+
   it('keeps the note without a box at rest and in focus, with a line for focus', () => {
     const area = rule('.home-working-card .home-working-notes textarea');
     expect(area).toContain('background: transparent');

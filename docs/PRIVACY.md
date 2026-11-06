@@ -15,7 +15,7 @@
 | `valrecall.preferences`                               | 常规设置                           |
 | `valrecall.typography`                                | 字体和字号                         |
 | `valrecall.reminderState`、`valrecall.dailyPlanState` | 提醒状态                           |
-| `valrecall.workingCard`                               | “工作中”卡片的状态                 |
+| `valrecall.workingCard`                               | “工作中”卡片的状态、下一步和计划   |
 | `valrecall.rewards`                                   | 是否显示奖励。关着时，账本照常记录 |
 | `valrecall.lastBackupAt`                              | 上次导出日期                       |
 | `valrecall.persistAsked`                              | 是否已申请持久存储                 |

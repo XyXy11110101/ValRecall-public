@@ -45,6 +45,7 @@ export function useWorkingCard(
   const [state, setState] = useState<WorkingCardState>(() => ({
     ...DEFAULT_WORKING_CARD,
     notes: [],
+    plans: [],
   }));
   const [ready, setReady] = useState(false);
   const latest = useRef(state);
@@ -66,7 +67,7 @@ export function useWorkingCard(
     void loadWorkingCard(storageRef.current)
       .catch(() => {
         readFailed.current = true;
-        return { ...DEFAULT_WORKING_CARD, notes: [] };
+        return { ...DEFAULT_WORKING_CARD, notes: [], plans: [] };
       })
       .then((loaded) => {
         if (!active) return;

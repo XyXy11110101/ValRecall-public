@@ -171,7 +171,7 @@ describe('useWorkingCard', () => {
     act(() => chromeApi.emit(other));
     expect(latest.state.current?.taskId).toBe('other');
     act(() => chromeApi.emit(undefined));
-    expect(latest.state).toEqual({ ...DEFAULT_WORKING_CARD, notes: [] });
+    expect(latest.state).toEqual({ ...DEFAULT_WORKING_CARD, notes: [], plans: [] });
     await act(async () => root.unmount());
     expect(chromeApi.listeners.size).toBe(0);
     root = createRoot(container);

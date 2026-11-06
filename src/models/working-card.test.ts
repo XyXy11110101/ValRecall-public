@@ -3,17 +3,23 @@ import { buildHomeTaskOverview } from './task-overview';
 import type { DailyTask, TaskCompletion } from './daily-task';
 import {
   DEFAULT_WORKING_CARD,
+  EMPTY_WORKING_PLAN,
   WORKING_NOTE_MAX_LENGTH,
+  WORKING_PLAN_TEXT_MAX_LENGTH,
   countOpenOneOffs,
   forgetWorkingTask,
   normalizeWorkingCardState,
   putDownWork,
   resolveWorkingRow,
   saveWorkingNote,
+  saveWorkingPlan,
+  sameWorkingPlan,
   setWorkingEnabled,
   startWork,
   workingNoteFor,
+  workingPlanFor,
   type WorkingCardState,
+  type WorkingPlanFields,
 } from './working-card';
 
 const today = '2026-10-30';
@@ -42,6 +48,7 @@ const daily = (id: string) =>
 const state = (taskId: string, startedOn = today): WorkingCardState => ({
   ...DEFAULT_WORKING_CARD,
   notes: [],
+  plans: [],
   current: { taskId, startedOn },
 });
 const done = (taskId: string, localDate = today): TaskCompletion => ({
@@ -158,7 +165,7 @@ describe('resolving the working row', () => {
 
 describe('working card changes', () => {
   it('starts the trial on the first start and counts starts until its last day', () => {
-    let card: WorkingCardState = { ...DEFAULT_WORKING_CARD, notes: [] };
+    let card: WorkingCardState = { ...DEFAULT_WORKING_CARD, notes: [], plans: [] };
     card = startWork(card, 'a', today, 7);
     expect(card.current).toEqual({ taskId: 'a', startedOn: today });
     expect(card.trial).toEqual({ startedOn: today, openOneOffsAtStart: 7, starts: 1 });
@@ -246,5 +253,132 @@ describe('working card changes', () => {
         ),
       ),
     ).toBe(3);
+  });
+});
+
+describe('working card plans', () => {
+  const plan = (changes: Partial<WorkingPlanFields> = {}): WorkingPlanFields => ({
+    start: '14:00',
+    end: '15:30',
+    deliverable: '第九章的三条笔记',
+    criteria: '看完第九章，并写下三条笔记',
+    ...changes,
+  });
+  const row = (t: DailyTask, localDate = today) => ({ task: t, localDate, completion: null });
+
+  it('reads an older stored value without plans as having none', () => {
+    expect(normalizeWorkingCardState({ version: 1, notes: [] }).plans).toEqual([]);
+    expect(normalizeWorkingCardState({ version: 1, plans: 'nope' }).plans).toEqual([]);
+    expect(normalizeWorkingCardState(null).plans).toEqual([]);
+  });
+
+  it('checks every stored plan field by field and drops what is not a plan', () => {
+    const result = normalizeWorkingCardState({
+      version: 1,
+      plans: [
+        { taskId: 'a', date: today, ...plan(), extra: 1 },
+        { taskId: 'a', date: today, ...plan({ criteria: 'duplicate' }) },
+        { taskId: 'times', date: today, ...plan({ start: '24:00', end: '9:30' }) },
+        { taskId: 'spaces', date: today, ...plan({ start: ' 08:05 ', deliverable: '  稿子  ' }) },
+        { taskId: 'long', date: today, ...plan({ deliverable: 'x'.repeat(500) }) },
+        { taskId: 'blank', date: today, start: 'x', end: '', deliverable: ' ', criteria: '' },
+        { taskId: 'number', date: today, ...plan({ start: 1400 as unknown as string }) },
+        { taskId: 'missing', date: today, start: '', end: '', deliverable: 'x' },
+        { taskId: 'bad-date', date: 'never', ...plan() },
+        { taskId: '', date: today, ...plan() },
+        'text',
+        null,
+        [],
+      ],
+    });
+    expect(result.plans.map((entry) => entry.taskId)).toEqual(['a', 'times', 'spaces', 'long']);
+    expect(result.plans[0]).toEqual({ taskId: 'a', date: today, ...plan() });
+    expect(result.plans[1]).toMatchObject({ start: '', end: '' });
+    expect(result.plans[2]).toMatchObject({ start: '08:05', deliverable: '稿子' });
+    expect(result.plans[3]?.deliverable).toHaveLength(WORKING_PLAN_TEXT_MAX_LENGTH);
+  });
+
+  it('keeps at most 30 stored plans', () => {
+    const plans = Array.from({ length: 40 }, (_, index) => ({
+      taskId: `p${index}`,
+      date: today,
+      ...plan(),
+    }));
+    expect(normalizeWorkingCardState({ version: 1, plans }).plans).toHaveLength(30);
+  });
+
+  it('saves one plan per task, newest first, cleaned, and an empty one removes it', () => {
+    let card = saveWorkingPlan(state('a'), 'a', plan(), today);
+    card = saveWorkingPlan(card, 'b', plan({ deliverable: 'b' }), today);
+    card = saveWorkingPlan(card, 'a', plan({ deliverable: ' 改过 ', end: '25:00' }), today);
+    expect(card.plans.map((entry) => entry.taskId)).toEqual(['a', 'b']);
+    expect(card.plans[0]).toEqual({
+      taskId: 'a',
+      date: today,
+      ...plan({ deliverable: '改过', end: '' }),
+    });
+    const cleared = saveWorkingPlan(card, 'a', { ...EMPTY_WORKING_PLAN, criteria: '   ' }, today);
+    expect(cleared.plans.map((entry) => entry.taskId)).toEqual(['b']);
+    expect(
+      saveWorkingPlan(state('a'), 'a', plan({ criteria: 'y'.repeat(300) }), today).plans[0]
+        ?.criteria,
+    ).toHaveLength(WORKING_PLAN_TEXT_MAX_LENGTH);
+    for (let index = 0; index < 40; index += 1)
+      card = saveWorkingPlan(card, `t${index}`, plan(), today);
+    expect(card.plans).toHaveLength(30);
+    expect(card.plans[0]?.taskId).toBe('t39');
+  });
+
+  it('a time alone or a single field is still a plan', () => {
+    const card = saveWorkingPlan(state('a'), 'a', { ...EMPTY_WORKING_PLAN, end: '15:30' }, today);
+    expect(workingPlanFor(card, row(task('a')), today)).toEqual({
+      ...EMPTY_WORKING_PLAN,
+      end: '15:30',
+    });
+  });
+
+  it('shows a one-off plan on any day and a recurring plan only on its own day', () => {
+    const card = saveWorkingPlan(state('a'), 'a', plan(), today);
+    expect(workingPlanFor(card, row(task('a')), today)).toEqual(plan());
+    expect(workingPlanFor(card, row(task('a'), '2026-10-20'), today)).toEqual(plan());
+    expect(workingPlanFor(card, row(daily('a')), today)).toEqual(plan());
+    expect(workingPlanFor(card, row(daily('a'), '2026-10-31'), '2026-10-31')).toEqual(
+      EMPTY_WORKING_PLAN,
+    );
+    expect(workingPlanFor(card, row(task('other')), today)).toEqual(EMPTY_WORKING_PLAN);
+  });
+
+  it('hides a plan past 30 days at once and removes it with the next change', () => {
+    const card = saveWorkingPlan(state('a'), 'a', plan(), today);
+    expect(workingPlanFor(card, row(task('a')), '2026-11-29')).toEqual(plan());
+    expect(workingPlanFor(card, row(task('a')), '2026-11-30')).toEqual(EMPTY_WORKING_PLAN);
+    expect(putDownWork(card, '2026-11-30').plans).toEqual([]);
+    expect(startWork(card, 'b', '2026-11-30', 0).plans).toEqual([]);
+    expect(startWork(card, 'b', '2026-11-29', 0).plans).toHaveLength(1);
+    expect(saveWorkingPlan(card, 'c', plan(), '2026-11-30').plans.map((p) => p.taskId)).toEqual([
+      'c',
+    ]);
+  });
+
+  it('putting down keeps plans, and notes and plans do not touch each other', () => {
+    const card = saveWorkingNote(saveWorkingPlan(state('a'), 'a', plan(), today), 'a', '写', today);
+    expect(putDownWork(card, today).plans).toEqual(card.plans);
+    expect(saveWorkingNote(card, 'a', '', today).plans).toEqual(card.plans);
+    expect(saveWorkingPlan(card, 'a', EMPTY_WORKING_PLAN, today).notes).toEqual(card.notes);
+  });
+
+  it('forgetting a task or turning the card off drops its plans', () => {
+    let card = saveWorkingPlan(state('a'), 'a', plan(), today);
+    card = saveWorkingPlan(card, 'b', plan(), today);
+    expect(forgetWorkingTask(card, 'a').plans.map((entry) => entry.taskId)).toEqual(['b']);
+    const off = setWorkingEnabled(card, false);
+    expect(off.plans).toEqual([]);
+    expect(setWorkingEnabled(off, true).plans).toEqual([]);
+  });
+
+  it('compares plans as they would be saved', () => {
+    expect(sameWorkingPlan(plan(), plan({ deliverable: ' 第九章的三条笔记 ' }))).toBe(true);
+    expect(sameWorkingPlan(plan(), plan({ start: '14:01' }))).toBe(false);
+    expect(sameWorkingPlan(EMPTY_WORKING_PLAN, { ...EMPTY_WORKING_PLAN, start: 'bad' })).toBe(true);
   });
 });
