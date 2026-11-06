@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ValRecall",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "把 B 站、YouTube 和抖音视频里的学习片段存下来，在本机安排复习。",
   "permissions": ["activeTab", "alarms", "notifications", "scripting", "storage", "sidePanel"],
   "optional_permissions": ["nativeMessaging"],
