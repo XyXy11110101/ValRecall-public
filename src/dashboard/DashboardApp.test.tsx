@@ -12,6 +12,22 @@ import { DashboardApp } from './DashboardApp';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
+/**
+ * Lets the page work in small steps until `check` passes. A slow CI runner can need far longer
+ * than any fixed wait: one 30 ms wait failed there on 2026-11-06.
+ */
+async function settleUntil(check: () => void | Promise<void>): Promise<void> {
+  await vi.waitFor(
+    async () => {
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      });
+      await check();
+    },
+    { timeout: 10_000, interval: 0 },
+  );
+}
+
 describe('DashboardApp navigation', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -270,31 +286,33 @@ describe('DashboardApp navigation', () => {
     });
     await act(async () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-      await new Promise((resolve) => setTimeout(resolve, 30));
     });
-    const created = (await repository.listItems()).find(
-      (item) => item.sourceType === 'text' && item.title === title,
-    );
+    let created: LearningItem | undefined;
     try {
-      expect(created).toBeDefined();
-      expect(container.textContent).toContain('回忆题已保存');
-      await act(async () => button('在资料库查看')!.click());
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 30));
+      await settleUntil(async () => {
+        created = (await repository.listItems()).find(
+          (item) => item.sourceType === 'text' && item.title === title,
+        );
+        expect(created).toBeDefined();
+        expect(container.textContent).toContain('回忆题已保存');
       });
-      expect(window.location.search).toBe('?view=library');
-      expect(container.querySelector('.library-reading')?.textContent).toContain(
-        '独立解释，再核对来源。',
-      );
+      await act(async () => button('在资料库查看')!.click());
+      await settleUntil(() => {
+        expect(window.location.search).toBe('?view=library');
+        expect(container.querySelector('.library-reading')?.textContent).toContain(
+          '独立解释，再核对来源。',
+        );
+      });
       expect(container.querySelector('.detail-editor')).toBeNull();
       expect(document.activeElement).toBe(container.querySelector('.library-detail-heading h3'));
     } finally {
-      if (created)
+      const saved = created;
+      if (saved)
         await act(async () => {
-          await repository.deleteItem(created.id);
+          await repository.deleteItem(saved.id);
         });
     }
-  });
+  }, 30_000);
 
   it('opens the pocket-money ledger from the secondary 零花钱 entry', async () => {
     await renderApp();
@@ -325,12 +343,11 @@ describe('DashboardApp navigation', () => {
     );
     try {
       await renderApp();
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 30));
+      await settleUntil(() => {
+        expect(container.querySelector('.library-detail-heading h3')?.textContent).toBe(
+          'Preserved directory item',
+        );
       });
-      expect(container.querySelector('.library-detail-heading h3')?.textContent).toBe(
-        'Preserved directory item',
-      );
       const search = container.querySelector<HTMLInputElement>('[aria-label="搜索回忆题"]')!;
       await act(async () => {
         Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
@@ -354,7 +371,7 @@ describe('DashboardApp navigation', () => {
     } finally {
       await repository.deleteItem(item.id);
     }
-  });
+  }, 30_000);
 
   it('opens the cohort forecast inside Review sub-navigation without adding a top-level tab', async () => {
     await renderApp();
@@ -395,8 +412,8 @@ describe('DashboardApp navigation', () => {
       });
     await renderApp();
     await act(async () => button('待办')?.click());
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 30));
+    await settleUntil(() => {
+      expect(button('添加待办')).toBeTruthy();
     });
     await act(async () => button('添加待办')?.click());
     const input = container.querySelector<HTMLInputElement>('.task-form input')!;
@@ -420,7 +437,7 @@ describe('DashboardApp navigation', () => {
     });
     expect(window.location.search).toBe('?view=home');
     expect(activeTab()?.textContent).toBe('首页');
-  });
+  }, 30_000);
 
   it('honours an addressable query view and reacts to browser history', async () => {
     window.history.replaceState({}, '', '/dashboard.html?view=settings');
